@@ -1,0 +1,29 @@
+{% set intro = g.site_intro_text %}
+<div class="box-intro">
+  <div>
+    {% if intro %}
+    <div class="pronoted-img">
+    {% if g.promoted_banner %}
+    <img class="img-responsive"  src="{{ h.url_for_static(g.promoted_banner) }}" width="420" height="220" />
+  {% else %}
+    <img class="img-responsive"  src="{{ h.url_for_static('/base/images/promoted.png') }}" alt="Placeholder" width="420" height="220" />
+  {% endif %}
+  </div>
+  <div class="pronoted-text">
+      {{ intro}}
+    </div>
+    {% else %}
+    <div class="pronoted-img">
+      {% if g.promoted_banner %}
+      <img class="img-responsive"  src="{{ h.url_for_static(g.promoted_banner) }}" width="420" height="220" />
+    {% else %}
+      <img class="img-responsive" src="{{ h.url_for_static('/base/images/promoted.png') }}" alt="Placeholder" width="420" height="220" />
+    {% endif %}
+    </div>
+    <div class="pronoted-text">
+    สำนักงานเศรษฐกิจการเกษตร กระทรวงเกษตรและสหกรณ์ เปิดให้บริการข้อมูลทางด้านเศรษฐกิจผ่านช่องทาง Open Data เพื่อนำไปสู่การบริหารจัดการเพื่อความมั่นคงและยั่งยืน
+  </div>
+    {% endif %}
+  </div>
+
+</div>

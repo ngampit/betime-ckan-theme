@@ -1,0 +1,242 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _("การเชื่อมโยงฐานข้อมูล") }}{% endblock %}
+{% block breadcrumb_content %}
+  <li class="active"><a href="/master_connection">{{ _('การเชื่อมโยงฐานข้อมูล') }}</a></li>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    
+    <input type="text" id="apikey" style="display: none;" value="{{c.userobj.apikey}}">
+  <div class="module-content">
+  <div class="page_primary_action">
+    </div>
+    <form  action="javascript:void(0);" onsubmit="inputDb()">
+
+
+      <div class="form-group control-medium">
+        <label class="control-label" for="field-maintainer"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> ชื่อฐานข้อมูล</label>
+        <div class="controls ">
+          <input id="topic" type="text" name="topic" value="" placeholder="ชื่อฐานข้อมูล" class="form-control  input-data" required>
+        </div>
+      </div>
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-maintainer"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> ประเภทฐานข้อมูล</label>
+      <div class="controls ">
+        <select  name="db_type" class="form-control  input-data"  id="db_type" onchange="checkdb()" fdprocessedid="l9q1c">
+          
+          <option id="mysql" value="Mysql">Mysql</option>
+          <option id="postgresql" value="postgresql">Postgresql</option>
+          <option id="oracle" value="oracle">Oracle DB</option>
+          <option id="mssql" value="mssql">Mssql</option>
+          
+          
+        </select>
+      </div>
+    </div>
+    <input id="id_connection" name="id_connection" value="{{ c.id }}" class="form-control  input-data" style="display: none;">
+    
+
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-maintainer"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> Host</label>
+      <div class="controls ">
+        <input  type="text" id="db_host" name="db_host" value="" placeholder="Host Ip เครื่อง Database" class="form-control  input-data" required>
+      </div>
+    </div>
+
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-maintainer"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> Port</label>
+      <div class="controls ">
+        <input  type="text" id="db_port" name="db_port" value="" placeholder="Port เครื่อง Database" class="form-control  input-data" required>
+      </div>
+    </div>
+
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-maintainer"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> Database Name / Service Name</label>
+      <div class="controls ">
+        <input  type="text" id="db_name" name="db_name" value="" placeholder="ชื่อฐานข้อมูล" class="form-control  input-data" required>
+      </div>
+    </div>
+
+    <div id="typedf">
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-maintainer"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> Schema</label>
+      <div class="controls ">
+        <input  type="text" id="schema" name="schema" value="" placeholder="ชื่อ Schema" class="form-control  input-data" fdprocessedid="q6s5w" required>
+      </div>
+    </div>
+    </div>
+
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-maintainer"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> User</label>
+      <div class="controls ">
+        <input  type="text" id="db_user" name="db_user" value="" placeholder="User การเข้าถึง Database" class="form-control  input-data" required>
+      </div>
+    </div>
+
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-maintainer"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> Password</label>
+      <div class="controls ">
+        <input  type="password" id="db_password" name="db_password" value="" placeholder="Password การเข้าถึง Database" class="form-control  input-data" required>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a class="btn btn-danger pull-left" onclick="checkConnect()" href="javascript:void(0);" style="background: #ff5722;" >ทดสอบการเชื่อมโยง</a>
+    <button class="btn btn-primary" type="submit" name="save" fdprocessedid="bx7hlp">ปรับปรุงข้อมูล</button>
+  
+
+</div>
+
+  </form>
+
+</div>
+  </article>
+{% endblock %}
+
+
+
+
+
+
+{% block secondary_content %}
+  <section class="module module-narrow">
+    <h2 class="module-heading">
+      รายละเอียด
+    </h2>
+    <div class="module-content">
+      <p>   ข้อมูลแหล่งการเชื่อมโยงจาก Database </p>
+    </div>
+ 
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    var conf = confCkan();
+    var host = conf.api_host;
+    var id = $("#id_connection").val();
+    var settings = {
+  "url": host+"master/"+id,
+  "method": "GET",
+  "headers": {
+    "Authorization": $("#apikey").val()
+  },
+  "timeout": 0,
+};
+
+$.ajax(settings).done(function (response) {
+
+ $("#db_host").val(response.db_host);
+ $("#topic").val(response.topic);
+ $("#db_port").val(response.db_port);
+ $("#db_name").val(response.db_name);
+ $("#db_user").val(response.db_user);
+ $("#db_password").val(response.db_password);
+
+ $("#schema").val(response.schema)
+
+ var db_type =response.db_type;
+ $("#"+db_type).prop("selected",true);
+ if(db_type=="oracle"){
+  $("#typeor").css("display","block");
+        $("#typedf").css("display","none");
+
+        $('#typeor input').prop('required',true);
+        $('#typedf input').prop('required',false);
+ }else{
+  $("#typedf").css("display","block");
+        $("#typeor").css("display","none");
+
+        $('#typedf input').prop('required',true);
+        $('#typeor input').prop('required',false);
+ }
+
+});
+
+
+function checkConnect(){
+      var data_obj = $(".input-data").toArray();
+      var json ={};
+      for(var i=0;i<data_obj.length;i++){
+        json[$(data_obj[i]).attr("name")]  =  $(data_obj[i]).val();
+      }
+    var settings = {
+    "url": host+"test_conenction",
+    "method": "POST",
+    "timeout": 0,
+    "headers": {
+      "Content-Type": "application/json",
+    "Authorization": $("#apikey").val()
+    },
+    "data": JSON.stringify(json),
+    };
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+  if(response.status){
+    sweetAlert("การเชื่อมต่อฐานข้อมูล", response.message, "success");
+  }else{
+    sweetAlert("การเชื่อมต่อฐานข้อมูล", response.message, "error");
+  }
+  
+});
+    }
+
+
+    function inputDb(){
+      $("#loader_box").css("display","block");
+      var data_obj = $(".input-data").toArray();
+      var json ={};
+
+      for(var i=0;i<data_obj.length;i++){
+        json[$(data_obj[i]).attr("name")]  =  $(data_obj[i]).val();
+      }
+
+      var settings = {
+    "url": host+"update_master",
+    "method": "POST",
+    "timeout": 0,
+    "headers": {
+      "Content-Type": "application/json",
+    "Authorization": $("#apikey").val()
+    },
+    "data": JSON.stringify(json),
+    };
+
+$.ajax(settings).done(function (response) {
+  if(response.status){
+    window.location.href ="/master_connection";
+  }else{
+    $("#loader_box").css("display","none");
+    sweetAlert("การเชื่อมต่อฐานข้อมูล", response.message, "error");
+  }
+  
+});
+
+
+
+    }
+
+    function checkdb(){
+      var type = $("#db_type").val();
+      if(type=="oracle"){
+       
+        $("#typeor").css("display","block");
+        $("#typedf").css("display","none");
+
+        $('#typeor input').prop('required',true);
+        $('#typedf input').prop('required',false);
+      }else{
+        $("#typedf").css("display","block");
+        $("#typeor").css("display","none");
+
+        $('#typedf input').prop('required',true);
+        $('#typeor input').prop('required',false);
+      }
+      
+    }
+  </script>
+{% endblock %}

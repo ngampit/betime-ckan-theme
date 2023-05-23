@@ -1,0 +1,388 @@
+{% ckan_extends %}
+
+  {% block form_actions %}
+  
+  {% set database_view = 'none' %}
+  {% set file_export = '' %}
+  {% set database_type = '' %}
+  
+
+  {% if  data.extras|length > 0 %}
+
+
+  {% set database_view = data.extra_dict['database_view'] %}
+  {% set file_export = data.extra_dict['file_export'] %}
+  {% set database_type = data.extra_dict['database_type'] %}
+
+  {% endif %}
+
+{% for x in data.extras %}
+<input  type="text" id="input_{{x.key}}"  value="{{x.value}}" class="form-control hidden">
+
+{% endfor %}
+
+
+  <input  type="text" name="extras__0__key" value="database_type" class="form-control hidden">
+  <input  type="text" name="extras__1__key" value="database_view" class="form-control hidden">
+
+  <input  type="text" name="extras__2__key" value="file_export" class="form-control hidden">
+  <input  type="text" name="extras__2__value" value=" " class="form-control hidden">
+
+  
+  	<input  type="text" name="extras__3__key" value="select_field" class="form-control hidden">
+	<input  type="text" name="extras__3__value" value=" " class="form-control hidden">
+	<input  type="text" name="extras__4__key" value="field_name" class="form-control hidden"> 
+	<input  type="text" name="extras__4__value" value=" " class="form-control hidden">
+
+
+
+	<div class="form-group control-medium">
+		<label class="control-label" for="field-db">แหล่งข้อมูลจาก ฐานข้อมูล</label>
+	
+	  <input id="field-db" type="text" name="extras__0__value" value="{{database_type}}" placeholder="" class=" hidden">
+	  
+	  <div class="form-group control-medium">
+		
+		<div class="controls">
+		  <select id="db" class="form-control" onchange="getdb()">
+			<option value="none"> กรุณาเลือกข้อมูล </option>
+		  </select>
+		</div>
+	  </div> 
+	</div> 
+
+
+  <div class="form-group control-medium">
+	<label class="control-label" for="field-view_name">แหล่งข้อมูลจาก  (Data View)</label>
+
+  <input id="field-view_name" type="text" name="extras__1__value" value="{{database_view}}" placeholder="" class=" hidden">
+  
+  <div class="form-group control-medium">
+	
+	<div class="controls">
+	  <select id="view_name" class="form-control" onchange="getmetadata()">
+		<option value="none"> กรุณาเลือกข้อมูล </option>
+	  </select>
+	</div>
+  </div> 
+</div> 
+<div class="form-group control-medium">
+	<label class="control-label" for="field-view_name">ข้อมูล File Export</label>
+	<div class="form-group ">
+	 
+	  <div class="controls" style="padding: 0;">
+	  <div class="row">
+		<div class="col-md-12">
+		<input type="text" id="file_hide" value="{{file_export}}" class="hidden">
+		<select id="files" name="extras__2__value"  class="form-control" multiple>
+			<option value="xlsx" id="xlsx"> xlsx </option>
+		  <option value="csv" id="csv"> csv </option>
+		  <option value="xml" id="xml"> xml </option>
+		  <option value="json" id="json"> json </option>
+		  <option value="rdf" id="rdf"> rdf </option>
+		</select>
+	  </div>
+	  </div>
+	</div>
+	</div>
+</div> 
+<div class="form-group control-medium">
+	<label class="control-label" for="field-view_name">ข้อมูล File Export</label>
+
+ 
+  <div class="form-group control-medium">
+	
+	<div class="row">
+		<div class="col-md-12">
+		  <table class="table table-striped table-bordered table-condensed">
+			<thead>
+			  <tr>
+				<th style="width: 70px;text-align: center;"> <input type="checkbox" id="ck_all" onchange="onChangeCheckbobx()"> </th>
+				<th> Field name </th>
+				<th> Description </th>
+				<th> Field type </th>
+				<th> Field unit </th>
+			  </tr>
+			</thead>
+			<tbody id="data_body">
+	 
+			</tbody>
+		  </table>
+	  </div>
+	  </div>
+  </div> 
+
+</div> 
+<input type="text" id="t-id" value="{{data.id}}" style="display: none;">
+
+  <script>
+	  var host = "http://localhost/api/";
+	 $(function(){
+
+		getdatabase();
+
+
+		var s = $("#file_hide").val();
+		if(String(s).trim()!==""){
+			var data_select = s.replace("{", "").replace("}", "").replace(/\"/g, "").split(",");
+			for(var i=0;i<data_select.length;i++){
+				if(String(data_select[i]).trim()!==""){
+				$('#'+data_select[i]).prop("selected",true);
+				}
+			}
+			
+			var text ='<button class="btn btn-primary" type="button" onclick="export_data()" id="btn_export" style="display: block; float: right; margin-left: 10px;margin-right: 5px; background: #4caf50 !important;border-color: #4caf50 !important;">สร้างไฟล์ข้อมูล</button>';
+			$(".form-actions").append(text);
+		}
+	  $('#files').select2();
+		 var settings = {
+	 "url": "/data/view",
+	 "method": "GET",
+	 "timeout": 0,
+   };
+   
+   $.ajax(settings).done(function (response) {
+	//  $("#loader_box").fadeOut();
+	 var ary =  response;
+	 var html =' <option value="none" > กรุณาเลือกข้อมูล </option>';
+	 for(var i=0;i<ary.length;i++){
+	   if($("#field-view_name").val()==ary[i].view){
+	   html +=' <option value="'+ary[i].view+'" selected> '+ary[i].view+' </option>';
+	   }else{
+		 $("#view_name").val(ary[i].view);
+		 html +=' <option value="'+ary[i].view+'" > '+ary[i].view+' </option>';
+	   }
+	 }
+	 if(String($("#data_view_name").val()).trim()!==""){
+	   setTimeout(function(){
+		 getmetadata();
+   }, 300);
+   
+	 }
+	 $("#view_name").html(html);
+   });
+   
+	   });
+	function getmetadata(){
+		  var v  = $("#view_name").val();
+		  $("#field-view_name").val(v);
+		  if(v=="none"){
+			$("#data_body").html("");
+			$('#files').select2();
+		  }else{
+		  getmetadata_call(v);
+		  }
+		}
+  
+
+		function getmetadata_call(viewname){
+		var json_data = {
+			"view":viewname,
+			"id_connection":$("#db").val()
+		}
+		  var v  =viewname;
+		  $("#field-view_name").val(v);
+		  if(String(v).trim()!==""){
+		  $('#files').select2();
+		  var settings = {
+	  "url": host+"metadata",
+	  "method": "POST",
+	  "headers": {
+      "Content-Type": "application/json"
+  	  },
+	  "data": JSON.stringify(json_data),
+	  "timeout": 0,
+	};
+	
+	$.ajax(settings).done(function (response) {
+	
+	  var ary =  response.data_list;
+	  var html ="";
+	  var f_des = [];
+	  var f_unit =  [];
+	 var ary_metadata=[];
+	  try{
+	   var f_data_j = JSON.parse($("#field-field_data").val());
+	   ary_metadata = f_data_j.column;
+		f_des = f_data_j.des;
+		f_unit = f_data_j.unit;
+	  }catch(error){
+	
+	  }
+	  var cid=4;
+	  
+	  for(var i=0;i<ary.length;i++){
+	  var des = "";
+	  var funit = "";
+	  
+	
+	html += '<tr>'+
+			   '<td style="text-align:center"> <input type="checkbox" name="extras__3__value" class="se'+i+' ckall" datatype="column" dataid="'+i+'"   id="f_'+ary[i].column_name+'"  value="'+ary[i].column_name+'" > </td>'+
+			   '<td> '+ary[i].column_name+' <input  type="text" name="extras__4__value" value="'+ary[i].column_name+'" class="form-control hidden"> </td>';
+			   cid++;
+	html +=   '<td> <input  type="text" name="extras__'+cid+'__key" value="c_'+ary[i].column_name+'_des" class="form-control hidden"> <input type="text" id="name_'+ary[i].column_name+'_des"  name="extras__'+cid+'__value" value="" datatype="des" placeholder="คำอธิบาย" class="form-control se'+i+'" style="height: 25px;"></td>';
+			   cid++;
+	html +=   '<td> <input  type="text" name="extras__'+cid+'__key" value="c_'+ary[i].column_name+'_type" class="form-control hidden"> <input type="text" id="name_'+ary[i].column_name+'_type" name="extras__'+cid+'__value" value="'+ary[i].type+'"  class="form-control se'+i+'" datatype="type" style="height: 25px;" readonly> </td>';
+			   cid++;
+	html +=   '<td> <input  type="text" name="extras__'+cid+'__key" value="c_'+ary[i].column_name+'_unit" class="form-control hidden"> <input type="text" id="name_'+ary[i].column_name+'_unit"  name="extras__'+cid+'__value" value="" placeholder="บาท,วัน,เดือน,ปี,กิโล" datatype="unit" class="form-control se'+i+'" style="height: 25px;"> </td>'+
+			 '</tr>';
+			 
+	  }
+	  $("#data_body").html(html);
+	
+	   
+	  setTimeout(function(){
+
+		var select_field = $("#input_select_field").val();
+
+		var field_name = $("#input_field_name").val();
+		if(String(field_name).trim()!==""){
+			var field_name_ary = field_name.replace("{", "").replace("}", "").replace(/\"/g, "").split(",");
+			for(var i=0;i<field_name_ary.length;i++){
+				if(String(field_name_ary[i]).trim()!==""){
+				$('#name_'+field_name_ary[i]+"_des").val($("#input_c_"+field_name_ary[i]+"_des").val());
+				$('#name_'+field_name_ary[i]+"_type").val($("#input_c_"+field_name_ary[i]+"_type").val());
+				$('#name_'+field_name_ary[i]+"_unit").val($("#input_c_"+field_name_ary[i]+"_unit").val());
+				}
+			}
+			
+		}
+		if(String(select_field).trim()!==""){
+			var select_field_ary = select_field.replace("{", "").replace("}", "").replace(/\"/g, "").split(",");
+			for(var i=0;i<select_field_ary.length;i++){
+				if(String(select_field_ary[i]).trim()!==""){
+				$("#f_"+select_field_ary[i]).prop("checked",true);
+				}
+			}
+		}
+		
+	}, 300);
+	});
+		  }
+		}
+  
+		function onChangeCheckbobx(){
+		  var x = $("#ck_all").prop( "checked" );
+		 
+			$("#data_body input").prop( "checked",x );
+		 gen_metadata_all();
+		}
+  
+  
+		function gen_metadata_all(){
+	 var column =[];
+	 var des =[];
+	 var unit =[];
+	 var datatype =[];
+  
+	 var seall = $(".ckall").toArray();
+	 for(var i=0; i<seall.length;i++ ){
+		if($(seall[i]).prop( "checked")){
+		  var dataid = $(seall[i]).attr("dataid");
+		  var dataall = $(".se"+dataid).toArray();
+		  for(var x=0;x<dataall.length;x++){
+			  var type = $(dataall[x]).attr("datatype");
+			  switch(type){
+				case "column" : column.push($(dataall[x]).val());
+				break;
+				case "des" : des.push($(dataall[x]).val());
+				break;
+				case "unit" : unit.push($(dataall[x]).val());
+				break;
+				case "type" : datatype.push($(dataall[x]).val());
+				break;
+			  }
+		  }
+		}
+	 } 
+	 var json = {
+	   "column":column,
+	   "des":des,
+	   "unit":unit,
+	   "type":datatype,
+	   "view_name":$("#field-view_name").val(),
+	   "files":$("#field-file_export").val()
+	 }
+	 var data = JSON.stringify(json);
+	 $("#field-field_data").val(data);
+   }
+
+
+   function export_data(){
+	$("#loader_box").fadeIn();
+        var settings = {
+  "url": "/data/view/"+$("#t-id").val(),
+  "method": "PUT",
+  "timeout": 0,
+};
+
+$.ajax(settings).done(function (response) {
+	$("#loader_box").css("display","none");
+	swal("ทำรายการสำเร็จ", "", "success");
+});
+      }
+
+
+	  function getdatabase(){
+		var settings = {
+  "url": host+"master",
+  "method": "GET",
+  "timeout": 0,
+};
+
+$.ajax(settings).done(function (response) {
+ 
+  var html ='<option value="none"> กรุณาเลือกข้อมูล </option>';
+  
+  var data_list = response.data_list;
+  $("#count_db").html("จำนวน "+data_list.length+" ฐานข้อมูล");
+  for(var i=0;i<data_list.length;i++){
+  html += '<option  id="'+data_list[i].id_connection+'" value="'+data_list[i].id_connection+'"> '+data_list[i].topic+' </option>';
+  }
+  $("#db").html(html);
+  var db_id = $("#field-db").val();
+  if(db_id!==""){
+	$("#"+db_id).prop("selected",true);
+	getdb();
+  }
+ 
+  
+});
+	  }
+
+	function getdb(){
+		
+		$("#loader_box").css("display","block");
+		var id = $("#db").val();
+		$("#field-db").val(id);
+		var settings = {
+  "url": host+"views/"+id,
+  "method": "GET",
+  "timeout": 0,
+};
+
+$.ajax(settings).done(function (response) {
+	$("#loader_box").css("display","none");
+ var html ='<option value="none"> กรุณาเลือกข้อมูล </option>';
+ 
+  var data_list = response.data_list;
+  for(var i=0;i<data_list.length;i++){
+  html += '<option id="'+data_list[i].view+'" value="'+data_list[i].view+'"> '+data_list[i].view+' </option>';
+  }
+  $("#view_name").html(html);
+
+  var view = $("#field-view_name").val();
+  if(view!==""){
+	$("#"+view).prop("selected",true);
+	getmetadata();
+  }
+});
+	}
+  </script>
+  
+	
+
+  {{ super() }}
+  
+  
+  {% endblock %}

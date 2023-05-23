@@ -1,0 +1,668 @@
+{% extends "page.html" %}
+
+{% set dataset_name = h.dataset_display_name(c.pks) %}
+
+
+{% block subtitle %}{{ _("การเชื่อมโยงฐานข้อมูล") }}{% endblock %}
+{% block breadcrumb_content %}
+<li ><a href="/organization/">องค์กร</a></li>
+<li ><a href="/organization/{{c.pks.organization.name}}">{{c.pks.organization.title}}</a></li>
+<li><a href="/dataset/{{c.name}}">{{dataset_name}}</a></li>
+<li class="active"><a href="/masterdata/dataset/{{c.name}}">แก้ไข</a></li>
+{% endblock %}
+{% set num_followers = h.follow_count('dataset', c.pks.id) %}
+{% block primary_content %}
+<style>
+  .box-data-set{
+    border: 1px dotted #cccccc;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: inline-block;
+  }
+  .data-connect{
+    display: none;
+  }
+.data-box-save{
+  padding: 5px 30px;
+}
+
+table th{
+  text-align: center;line-height: 3;
+}
+</style>
+  <article class="module">
+    <input type="text" id="apikey" style="display: none;" value="{{c.userobj.apikey}}">
+    <input type="text" id="user_id" value="{{c.user}}" style="display: none;">
+    <input type="text" id="pks_id" value="{{c.pks.id}}" style="display: none;">
+    
+    <header class="module-content page-header">     
+        <div class="content_action">
+          <a class="btn btn-default" href="/dataset/{{c.name}}"><i class="fa fa-eye"></i> ดูชุดข้อมูล</a>
+        </div>
+      <ul class="nav nav-tabs">
+        <li ><a href="/dataset/edit/{{c.name}}"><i class="fa fa-pencil-square-o"></i> แก้ไขข้อมูลเมตา</a></li>
+        <li><a href="/dataset/resources/{{c.name}}"><i class="fa fa-bars"></i> ทรัพยากร</a></li>
+        <li class="active"><a href="/masterdata/dataset/{{c.name}}"><i class="fa fa-database"></i> การเชื่อมโยงฐานข้อมูล</a></li>
+      </ul>
+    </header>
+
+    <section id="box-dataset" class="module-content tab-content active">
+
+    <div id="box-data-1" class="box-data-set">
+      
+      <div class="form-group control-medium">
+        <label class="control-label" for="field-db">แหล่งข้อมูลจาก ฐานข้อมูล</label>
+        <div class="data-connect">
+          <div id="db_df"></div>
+          <input id="input_db_df" value="none" style="display: none;">
+        </div>
+        <div class="form-group control-medium">
+        
+        <div class="controls">
+          <select id="db" class="form-control db" onchange="getdb('box-data-1')" >
+          <option value="none"> กรุณาเลือกข้อมูล </option>
+          </select>
+        </div>
+        </div> 
+      </div> 
+
+      <div class="form-group control-medium">
+      <label class="control-label" for="field-view_name">แหล่งข้อมูลจาก  (Data View)</label>
+      <div class="data-connect">
+        <div id="view_df"></div>
+        <input id="input_view_df" value="none" style="display: none;">
+      </div>
+      <div class="form-group control-medium">
+      
+      <div class="controls">
+        <select id="view_name" class="form-control" onchange="getmetadata('box-data-1')" disabled>
+        <option value="none"> กรุณาเลือกข้อมูล </option>
+        </select>
+      </div>
+      </div> 
+    </div> 
+
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-view_name">ชื่อไฟล์</label>
+      <div class="form-group control-medium">
+      <div class="controls">
+      
+        <input id="file_name" value="" class="form-control">
+      </div>
+      </div> 
+    </div>
+
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-view_name">ข้อมูล File Export</label>
+      <div class="form-group ">
+       
+        <div class="controls" style="padding: 0;">
+        <div class="row">
+        <div class="col-md-12">
+        <select id="files"   class="form-control" multiple >
+          <option value="xlsx" id="xlsx"> xlsx </option>
+          <option value="csv" id="csv"> csv </option>
+          <option value="xml" id="xml"> xml </option>
+          <option value="json" id="json"> json </option>
+        </select>
+        </div>
+        </div>
+      </div>
+      </div>
+    </div> 
+    
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-view_name">ข้อมูล File Export</label>
+    
+     
+      <div class="form-group control-medium">
+      
+      <div class="row">
+        <div class="col-md-12">
+          <table class="table table-striped table-bordered table-condensed">
+          <thead>
+            <tr>
+            
+            <th style="width: 70px;text-align: center;line-height: 3;"> <input type="checkbox" id="ck_all" onchange="onChangeCheckbobx('box-data-1')"> </th>
+            <th style="width: 70px;text-align: center;"> Group  <div id="bok_group"></div></th>
+            <th style="text-align: center;line-height: 3;"> Field name </th>
+            <th style="text-align: center;line-height: 3;"> Description </th>
+            <th style="text-align: center;line-height: 3;"> Field type </th>
+            <th style="text-align: center;line-height: 3;"> Field unit </th>
+            </tr>
+          </thead>
+          <tbody id="data_body">
+       
+          </tbody>
+          </table>
+        </div>
+        </div>
+      </div> 
+    
+    </div> 
+    <button id="create_file" onclick="create_file('box-data-1')" class="btn btn-success  pull-right data-connect" >สร้างไฟล์ข้อมูล</button>
+  </div>  
+
+
+
+
+
+    </section>
+
+
+    <div id="box-data-hide" style="display: none">
+      <div class="form-group control-medium">
+        <label class="control-label" for="field-db">แหล่งข้อมูลจาก ฐานข้อมูล</label>
+        <div class="data-connect">
+          <div id="db_df"></div>
+          <input id="input_db_df" value="none" style="display: none;">
+        </div>
+        <div class="form-group control-medium">
+        
+        <div class="controls">
+          <select id="db" class="form-control db" onchange="getdb('box-data-1')" >
+          <option value="none"> กรุณาเลือกข้อมูล </option>
+          </select>
+        </div>
+        </div> 
+      </div> 
+      <div class="form-group control-medium">
+      <label class="control-label" for="field-view_name">แหล่งข้อมูลจาก  (Data View)</label>
+      <div class="data-connect">
+        <div id="view_df"></div>
+        <input id="input_view_df" value="none" style="display: none;">
+      </div>
+      <div class="form-group control-medium">
+      
+      <div class="controls">
+        <select id="view_name" class="form-control" onchange="getmetadata('box-data-1')" disabled>
+        <option value="none"> กรุณาเลือกข้อมูล </option>
+        </select>
+      </div>
+      </div> 
+    </div> 
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-view_name">ชื่อไฟล์</label>
+      <div class="form-group control-medium">
+      <div class="controls">
+      
+        <input id="file_name" value="" class="form-control">
+      </div>
+      </div> 
+    </div>
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-view_name">ข้อมูล File Export</label>
+      <div class="form-group ">
+       
+        <div class="controls" style="padding: 0;">
+        <div class="row">
+        <div class="col-md-12">
+        <select id="files"   class="form-control" multiple >
+          <option value="xlsx" id="xlsx"> xlsx </option>
+          <option value="csv" id="csv"> csv </option>
+          <option value="xml" id="xml"> xml </option>
+          <option value="json" id="json"> json </option>
+        </select>
+        </div>
+        </div>
+      </div>
+      </div>
+    </div> 
+    <div class="form-group control-medium">
+      <label class="control-label" for="field-view_name">ข้อมูล File Export</label>
+    
+     
+      <div class="form-group control-medium">
+      
+      <div class="row">
+        <div class="col-md-12">
+          <table class="table table-striped table-bordered table-condensed">
+          <thead>
+            <tr>
+            <th style="width: 70px;text-align: center;line-height: 3;"> <input type="checkbox" id="ck_all" onchange="onChangeCheckbobx('box-data-1')"> </th>
+            <th style="width: 70px;text-align: center;"> Group <div id="bok_group"></div></th>
+            
+            <th style="text-align: center;line-height: 3;"> Field name </th>
+            <th style="text-align: center;line-height: 3;"> Description </th>
+            <th style="text-align: center;line-height: 3;"> Field type </th>
+            <th style="text-align: center;line-height: 3;"> Field unit </th>
+            </tr>
+          </thead>
+          <tbody id="data_body">
+       
+          </tbody>
+          </table>
+        </div>
+        </div>
+      </div> 
+    
+    </div> 
+   
+
+
+  </div>  
+  <div class="data-box-save">
+  <button onclick="add_data()" class="btn btn-success pull-left">+ เพิ่มการเชื่อมโยงฐานข้อมูล</button>
+  <button onclick="save_data()" class="btn btn-primary pull-right">บันทึกข้อมูล</button>
+  </div>
+  </article>
+{% endblock %}
+
+{% block secondary_content %}
+  <section class="module module-narrow">
+    <div class="module context-info">
+        <div class="module-content">
+              <h1 class="heading">{{ dataset_name}}</h1>
+              <div class="nums">
+                <dl>
+                  <dt>{{ _('Followers') }}</dt>
+                  <dd data-module="followers-counter" data-module-id="{{ c.pks.id }}" data-module-num_followers="{{ num_followers }}">{{ h.SI_number_span(num_followers) }}</dd>
+                </dl>
+              </div>
+        </div>
+      </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+
+  <script>
+    
+    var conf = confCkan();
+    var host = conf.api_host;
+    var c = 100;
+  $(function (){
+    getdatabase();
+    
+    startapp();
+  });
+   
+function add_data(){
+  c++;
+  var id ='box-data-'+c;
+  var html =  $("#box-data-hide").html();
+  var savefile= '<button id="create_file" onclick="create_file(\''+id+'\')" class="btn btn-success  pull-right data-connect" style="margin-right:15px" >สร้างไฟล์ข้อมูล</button>';
+  var del = '<button onclick="del(\''+id+'\')" class="btn btn-danger pull-right" >ลบ</button>';
+  var div = '<div id="'+id+'" class="box-data-set">'+html+del+savefile+'</div>';
+ 
+  $("#box-dataset").append(div);
+
+  $('#'+id+' #files').select2();
+  $('#'+id+' #db').attr("onchange","getdb('"+id+"')");
+  $('#'+id+' #view_name').attr("onchange","getmetadata('"+id+"')");
+  $('#'+id+' #ck_all').attr("onchange","onChangeCheckbobx('"+id+"')");
+  
+}
+
+function getdatabase(){
+ 
+  var settings = {
+  "url": host+"master",
+  "method": "GET",
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": $("#apikey").val()
+  },
+  "timeout": 0,
+};
+
+$.ajax(settings).done(function (response) {
+ 
+  var html ='<option value="none"> กรุณาเลือกข้อมูล </option>';
+  
+  var data_list = response.data_list;
+  $("#count_db").html("จำนวน "+data_list.length+" ฐานข้อมูล");
+  for(var i=0;i<data_list.length;i++){
+  html += '<option  id="'+data_list[i].id_connection+'" value="'+data_list[i].id_connection+'"> '+data_list[i].topic+' </option>';
+  }
+  $(".db").html(html);
+});
+}
+
+function del(id){
+  $("#"+id).remove();
+}
+
+function getdb(boxid){
+		
+		$("#loader_box").css("display","block");
+		var id = $("#"+boxid+" #db").val();
+		var settings = {
+  "url": host+"views/"+id,
+  "method": "GET",
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": $("#apikey").val()
+  },
+  "timeout": 0,
+};
+
+$.ajax(settings).done(function (response) {
+	$("#loader_box").css("display","none");
+ var html ='<option value="none"> กรุณาเลือกข้อมูล </option>';
+ 
+  var data_list = response.data_list;
+  for(var i=0;i<data_list.length;i++){
+  html += '<option id="'+data_list[i].view+'" value="'+data_list[i].view+'"> '+data_list[i].view+' </option>';
+  }
+  $("#"+boxid+" #view_name").prop("disabled",false);
+  $("#"+boxid+" #view_name").html(html);
+});
+	
+}
+
+function getmetadata(boxid){
+  $("#loader_box").css("display","block");
+  var json_data = {
+			"view":$("#"+boxid+" #view_name").val(),
+			"id_connection":$("#"+boxid+" #db").val()
+		}
+
+  var settings = {
+	  "url": host+"metadata",
+	  "method": "POST",
+	  "headers": {
+      "Content-Type": "application/json",
+    "Authorization": $("#apikey").val()
+  	  },
+	  "data": JSON.stringify(json_data),
+	  "timeout": 0,
+	};
+	
+	$.ajax(settings).done(function (response) {
+		$("#loader_box").css("display","none");
+	  var ary =  response.data_list;
+	  var html ="";
+	  var f_des = [];
+	  var f_unit =  [];
+	 var ary_metadata=[];
+	 
+	  var cid=4;
+
+    var g = '<input type="radio" name="'+boxid+'_group"  datatype="column"    id="'+boxid+'_group"  value="none" checked>';
+    $("#"+boxid+"  #bok_group").html(g);
+	  
+	  for(var i=0;i<ary.length;i++){
+	  var des = "";
+	  var funit = "";
+	  
+	
+	html += '<tr>'+
+			   '<td style="text-align:center"> <input type="checkbox" name="extras__3__value" class=" ckall" datatype="column" "   id="f_'+ary[i].column_name+'"  value="'+ary[i].column_name+'" > </td>'+
+         '<td style="text-align:center"> <input type="radio" name="'+boxid+'_group"  datatype="column"    id="'+boxid+'_group" value="'+ary[i].column_name+'" > </td>'+
+			   '<td>  <input id="'+ary[i].column_name+'_field" type="text" name="extras__4__value" value="'+ary[i].column_name+'" class="form-control inputbox" readonly> </td>';
+			   cid++;
+	html +=   '<td><input type="text" id="'+ary[i].column_name+'_des"  name="extras__'+cid+'__value" value="" datatype="des" placeholder="คำอธิบาย" class="form-control  inputbox" ></td>';
+			   cid++;
+	html +=   '<td> <input type="text" id="'+ary[i].column_name+'_type" name="extras__'+cid+'__value" value="'+ary[i].type+'"  class="form-control  inputbox" datatype="type"  readonly> </td>';
+			   cid++;
+	html +=   '<td>  <input type="text" id="'+ary[i].column_name+'_unit"  name="extras__'+cid+'__value" value="" placeholder="บาท,วัน,เดือน,ปี,กิโล" datatype="unit" class="form-control  inputbox" > </td>'+
+			 '</tr>';
+			 
+	  }
+	  $("#"+boxid+" #data_body").html(html);
+  });
+}
+
+function save_data(){
+  $("#loader_box").css("display","block");
+  var dataset_ary =$("#box-dataset .box-data-set").toArray();
+  
+ var jsonall={
+  pks_id:$("#pks_id").val()
+ };
+ var jsonallary=[];
+ var statusall=false;
+
+
+  for(var i=0;i<dataset_ary.length;i++){
+    var dataset = dataset_ary[i];
+    var boxid= $(dataset).attr("id");
+
+    var db = $("#"+boxid+" #db").val();
+    if(db=="none"){
+      db = $("#"+boxid+" #input_db_df").val();
+    }
+    var view_name = $("#"+boxid+" #view_name").val();
+    if(view_name=="none"){
+      view_name = $("#"+boxid+" #input_view_df").val();
+    }
+    var files = $("#"+boxid+" #files").val();
+
+    var file_name = $("#"+boxid+" #file_name").val();
+
+    var ck = check(db,view_name,file_name);
+    if(ck){
+      var group = $('#'+boxid+' input[name="'+boxid+'_group"]:checked').val();
+      
+      var json = {
+        "pks_id":$("#pks_id").val(),
+        "db":db,
+        "db_name":$("#"+boxid+" #"+db).html(),
+        "view_name":view_name,
+        "file_name":file_name,
+        "files":files,
+        "group_by":group
+      }
+      var selectary = $("#"+boxid+" .ckall").toArray();
+      var selectarybox= [];
+      for(var x=0;x<selectary.length;x++){
+        var select = selectary[x];
+        var status=false;
+        if($(select).attr("type")=="checkbox"){
+          status = $(select).prop("checked");
+        }
+        var select_json={
+          "type":$(select).attr("type"),
+          "id":$(select).attr("id"),
+          "value":$(select).attr("value"),
+          "status":status
+        }
+        selectarybox.push(select_json);
+      }
+
+      json.selectbox=selectarybox;
+
+      var inputary = $("#"+boxid+" #data_body .inputbox").toArray();
+
+      for(var x=0;x<inputary.length;x++){
+        var input = inputary[x];
+        json[$(input).attr("id")]=$(input).val();
+      }
+
+      jsonallary.push(json);
+      statusall = true;
+    }else{
+      statusall = false;
+    }
+    jsonall.data_ary=jsonallary;
+
+   
+    
+  }
+
+  if(statusall){
+      var settings = {
+  "url": host+"savedataset",
+  "method": "POST",
+  "timeout": 0,
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": $("#apikey").val()
+  },
+  "data": JSON.stringify(jsonall),
+};
+
+$.ajax(settings).done(function (response) {
+  
+  if(response.status){
+    location.reload();
+    
+  }else{
+    $("#loader_box").css("display","none");
+    sweetAlert("การบันทึกข้อมูล", "เกิดข้อผิดพลาดไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง", "error");
+   
+  }
+});
+    }
+}
+
+function check(db,view_name,file_name){
+  var ck = true;
+if(db=="none"){
+  swal("กรุณาเลือกฐานข้อมูล", "", "error");
+  $("#loader_box").css("display","none");
+  return false;
+}
+if(view_name=="none"){
+  swal("กรุณาเลือก View", "", "error");
+  $("#loader_box").css("display","none");
+  return false;
+}
+if(file_name==""){
+  swal("กรุณาใส่ชื่อไฟล์", "", "error");
+  $("#loader_box").css("display","none");
+  return false;
+}
+return ck;
+}
+
+function onChangeCheckbobx(boxid){
+		  var x = $("#"+boxid+" #ck_all").prop( "checked" );
+		 
+			$("#"+boxid+" #data_body input[type=\"checkbox\"]").prop( "checked",x );
+		
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+function startapp(){
+  var settings = {
+  "url": host+"dataset/"+$("#pks_id").val(),
+  "method": "GET",
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": $("#apikey").val()
+  },
+  "timeout": 0,
+};
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+  if(response.data_ary.length>0){
+    var data_ary  = response.data_ary[0];
+    $("#box-data-1 #db_df").html("(ฐานข้อมูลปัจจุบัน : "+data_ary.db_name+")");
+    $("#box-data-1 #input_db_df").val(data_ary.db);
+    $("#box-data-1 #view_df").html("(View ปัจจุบัน : "+data_ary.view_name+")");
+    $("#box-data-1 #input_view_df").val(data_ary.view_name);
+    $("#box-data-1 #view_df").html("(View ปัจจุบัน : "+data_ary.view_name+")");
+    $("#box-data-1 #files").val(data_ary.files);
+    $("#box-data-1 #file_name").val(data_ary.file_name);
+
+    
+    $("#box-data-1 .data-connect").css("display","block");
+
+    var selectboxary = data_ary.selectbox;
+    selectarydata(selectboxary,data_ary,'box-data-1');
+
+    for(var x=1;x<response.data_ary.length;x++){
+      var data_ary_obj = response.data_ary[x];
+      add_data();
+      var data_id = 'box-data-'+c;
+
+      $("#"+data_id+" #db_df").html("(ฐานข้อมูลปัจจุบัน : "+data_ary_obj.db_name+")");
+    $("#"+data_id+" #input_db_df").val(data_ary_obj.db);
+    $("#"+data_id+" #view_df").html("(View ปัจจุบัน : "+data_ary_obj.view_name+")");
+    $("#"+data_id+" #input_view_df").val(data_ary_obj.view_name);
+    $("#"+data_id+" #view_df").html("(View ปัจจุบัน : "+data_ary_obj.view_name+")");
+    $("#"+data_id+" #files").val(data_ary_obj.files);
+
+    $("#"+data_id+" #file_name").val(data_ary_obj.file_name);
+
+    $("#"+data_id+" .data-connect").css("display","block");
+    var selectboxary = data_ary_obj.selectbox;
+    selectarydata(selectboxary,data_ary_obj,data_id);
+    $('#'+data_id+' #files').select2();
+    }
+  }
+  $('#box-data-1 #files').select2();
+});
+}
+
+function selectarydata(selectboxary,json,id){
+  var group_by=json.group_by;
+  var g = '<input type="radio" name="'+id+'_group" datatype="column"    id="'+id+'_group"  value="none" checked>';
+ $("#"+id+"  #bok_group").html(g);
+  var html ="";
+ 
+  for(var i=0;i<selectboxary.length;i++){
+    var selectbox = selectboxary[i];
+    var name = selectbox.value;
+    name = String(name).replace("f_","");
+    var select = "";
+    if(selectbox.status){
+      select ="checked";
+    }  
+    var checked ="";
+    if(group_by==name){
+      checked = "checked";
+    }
+  
+    html += '<tr>'+
+			   '<td style="text-align:center"> <input type="checkbox" name="extras__3__value" class=" ckall" datatype="column"    id="f_'+name+'"  value="'+name+'" '+select+'> </td>'+
+			   '<td style="text-align:center"> <input type="radio" name="'+id+'_group"  datatype="column"    id="'+id+'_group"  value="'+name+'" '+checked+'> </td>'+
+         '<td>  <input id="'+name+'_field" type="text" name="extras__4__value" value="'+name+'" class="form-control inputbox" readonly> </td>';
+			 
+	html +=   '<td><input type="text" id="'+name+'_des"   value="'+json[name+"_des"]+'" datatype="des" placeholder="คำอธิบาย" class="form-control  inputbox" ></td>';
+			  
+	html +=   '<td> <input type="text" id="'+name+'_type"  value="'+json[name+"_type"]+'"  class="form-control  inputbox" datatype="type"  readonly> </td>';
+			  
+	html +=   '<td>  <input type="text" id="'+name+'_unit"  value="'+json[name+"_unit"]+'" placeholder="บาท,วัน,เดือน,ปี,กิโล" datatype="unit" class="form-control  inputbox" > </td>'+
+			 '</tr>';
+ }
+
+ 
+ $("#"+id+"  #data_body").html(html);
+}
+
+function create_file(boxid){
+  $("#loader_box").css("display","block");
+  var view_name = $("#"+boxid+" #view_name").val();
+    if(view_name=="none"){
+      view_name = $("#"+boxid+" #input_view_df").val();
+    }
+
+    var db = $("#"+boxid+" #db").val();
+    if(db=="none"){
+      db = $("#"+boxid+" #input_db_df").val();
+    }
+
+  var json = {
+    "pks_id":$("#pks_id").val(),
+    "view_name":view_name,
+    "id_connect":db
+  }
+
+  var settings = {
+  "url": host+"createfile",
+  "method": "POST",
+  "timeout": 0,
+  "headers": {
+    "Content-Type": "application/json",
+    "Authorization": $("#apikey").val()
+  },
+  "data": JSON.stringify(json),
+};
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+  $("#loader_box").css("display","none");
+  if(response.status){
+    sweetAlert("การสร้างไฟล์ข้อมูล", response.message, "success");
+  }else{
+    sweetAlert("การสร้างไฟล์ข้อมูล", response.message, "error");
+  }
+});
+}
+  </script>
+{% endblock %}

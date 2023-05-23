@@ -1,0 +1,93 @@
+
+{% set resource_id = h.sanitize_id(resource_id) %}
+
+{% set sql_example_url = h.url_for(controller='api', action='action', ver=3, logic_function='datastore_search_sql', qualified=True) + '?sql=SELECT * from "' + resource_id + '" WHERE title LIKE \'jones\'' %}
+
+{% set files = file_name | replace(" ","+")  %}
+{% set url_api =  ckan_url+'/data/api/v1/'+package_id+'/resource/'+files %}
+{% set url_api_limit5 =  url_api+'?limit=5' %}
+{% set url_api_search =  url_api+'?q=jones' %}
+
+{# not urlencoding the sql because its clearer #}
+<div{% if not embedded %} class="modal fade"{% endif %}>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h3>
+            Open Data API 
+          </h3>
+        </div>
+        <div{% if not embedded %} class="modal-body"{% endif %}>
+          <p><strong>การเรียกใช้งาน API </strong>
+         
+          <div class="panel-group" id="accordion2">
+          
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <a class="accordion-toggle" data-toggle="collapse" data-parent="accordion2" href="#collapse-querying">ตัวอย่าง &raquo;</a>
+            </div>
+            <div id="collapse-querying" class="collapse panel-collapse in">
+              <div class="panel-body">
+                
+                <strong>{{ _('Query example (first 5 results)') }}</strong>
+                <p>
+                <code><a href="{{url_api_limit5}}" target="_blank" rel="nofollow">{{url_api_limit5}}</a></code>
+                </p>
+
+                <strong>{{ _('Query example (results containing \'jones\')') }}</strong>
+                <p>
+                <code><a href="{{url_api_search}}" target="_blank" rel="nofollow">{{url_api_search}}</a></code>
+                </p>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+             <a class="accordion-toggle" data-toggle="collapse" data-parent="accordion2" href="#collapse-javascript">{{ _('Example: Javascript') }} &raquo;</a>
+            </div>
+            <div id="collapse-javascript" class="panel-collapse collapse">
+              <div class="panel-body">
+                <p>{{ _('A simple ajax (JSONP) request to the data API using jQuery.') }}</p>
+                <pre>
+        var data = {
+          
+          limit: 5, // get 5 results
+          q: 'jones' // query for 'jones'
+        };
+        $.ajax({
+          url: '{{ url_api }}',
+          data: data,
+          dataType: 'jsonp',
+          success: function(data) {
+            alert('Total results found: ' + data.result.total)
+          }
+        });</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <a class="accordion-toggle" data-toggle="collapse" data-parent="accordion2" href="#collapse-python">{{ _('Example: Python') }} &raquo;</a>
+            </div>
+            <div id="collapse-python" class="panel-collapse collapse">
+              <div class="panel-body">
+                <pre>
+      import urllib
+      url = '{{url_api_limit5}}'  {# not urlencoding the ":" because its clearer #}
+      fileobj = urllib.urlopen(url)
+      print fileobj.read()
+      </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

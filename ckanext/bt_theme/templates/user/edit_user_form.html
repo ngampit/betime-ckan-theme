@@ -1,0 +1,342 @@
+{% import 'macros/form.html' as form %}
+<style>
+  .checkboxes label:after {
+     content: "" !important;
+ }
+ </style>
+
+<form id="user-edit-form" class="dataset-form" method="post" action="{{ action }}" enctype="multipart/form-data">
+  {{ form.errors(error_summary) }}
+
+  <fieldset>
+    <legend>{{ _('Change details') }}</legend>
+    <div class="row">
+    {{ form.input('name', label=_('Username')+" (กรอก Username เป็นภาษาอังกฤษ)", id='field-username', value=data.name, error=errors.name, classes=['control-medium col-md-6'], attrs={'readonly': '', 'class': 'form-control'}) }}
+
+    <!-- {{ form.input('fullname', label=_('Full name'), id='field-fullname', value=data.fullname, error=errors.fullname, placeholder=_('eg. Joe Bloggs'), classes=['control-medium']) }} -->
+
+    {{ form.input('email', label=_('Email'), id='field-email', type='email', value=data.email, error=errors.email, placeholder=_('eg. joe@example.com'), classes=['control-medium col-md-6'], is_required=true) }}
+
+    <!-- {{ form.markdown('about', label=_('About'), id='field-about', value=data.about, error=errors.about, placeholder=_('A little information about yourself')) }} -->
+  </div>
+
+  <!-- ADMIN -->
+
+  {% if g.userobj.sysadmin %}
+<div class="row">
+  <div class="form-group control-medium col-md-6">
+    <label class="control-label">ระดับผู้ใช้งาน</label>
+    <div class="controls ">
+      <select name="sysadmin" id="selectOptions" class="form-control">
+        <option value="False" {% if data.sysadmin==False%} selected="selected" {% endif %}>สมาชิก</option>
+        <option value="True" {% if data.sysadmin==True%} selected="selected" {% endif %}>ผู้ดูแลระบบ</option>
+      </select>
+    </div>
+  </div>
+
+ 
+
+    <div class="form-group control-medium box-date col-md-3">
+      <label class="control-label" for="start_date">วันที่สมัครใช้งาน</label>
+      <div class="controls ">
+      
+    <input id="start_date" type="date" name="custom_str_date" min="2018-01-31" value="{{data.custom_str_date}}" placeholder="2021-01-15" class="form-control" readonly>
+    
+      
+      
+      </div>
+      </div>
+
+      <div class="form-group control-medium box-date col-md-3">
+        <label class="control-label" for="expiration-date">วันที่หมดอายุการใช้งาน</label>
+        <div class="controls ">
+        
+      <input id="expiration-date"  type="date" name="custom_end_date"  value="{{data.custom_end_date}}" placeholder="2021-01-15"  class="form-control" >
+      
+        
+        
+        </div>
+        </div>
+
+      </div>
+
+        
+      <div class="row">
+      <div class="form-group control-medium col-md-6">
+        <label class="control-label">สถานะ</label>
+        <div class="controls ">
+          <select name="state" id="custom_status" class="form-control" onchange="check_date()">
+            <option  id="custom_status_wait" value="wait" {% if data.state=='wait'%} selected="selected" {% endif %}>รอการอนุมัติ</option>
+            <option id="custom_status_active" value="active" {% if data.state=='active'%} selected="selected" {% endif %}>อนุมัติเข้าใช้งาน</option>
+            
+            <option  id="custom_status_pending" value="pending" {% if data.state=='pending'%} selected="selected" {% endif %}>ยกเลิกการใช้งาน</option>
+          </select>
+        </div>
+      </div>
+        <div class="form-group control-medium col-md-6">
+          <label class="control-label" for="api_limit">ลิมิตการใช้ api</label>
+          <div class="controls ">
+          
+        <input id="api_limit" type="text" name="api_limit" value="{{data.custom_request_api}}" pattern="[0-9]{1,}"  title="กรุณาระบุเฉพาะ ตัวเลข" placeholder="5000" class="form-control" required="required">
+         
+           
+          
+          </div>
+          </div>
+        </div>
+        <input id="date_now" value="{{data.date_now}}"  class="hidden">
+
+        {% endif %}
+        
+  <!-- ADMIN -->
+          <h1>ข้อมูลส่วนบุคคลผู้ขอ</h1>
+  <div class="row">
+    <div class="col-md-2">
+      <div class="form-group control-medium">
+        <span title="ต้องการฟิลด์นี้" class="control-required">*</span>
+        <label class="control-label" for="field-fullname">คำนำหน้าชื่อ</label>
+        <div class="controls ">
+          <select class="form-control" name="custom_prefix_name">
+            <option value="นาย" {% if data.custom_prefix_name=='นาย'%} selected="selected" {% endif %}>นาย</option>
+            <option value="นาง" {% if data.custom_prefix_name=='นาง'%} selected="selected" {% endif %}>นาง</option>
+            <option value="นางสาว" {% if data.custom_prefix_name=='นางสาว'%} selected="selected" {% endif %}>นางสาว</option>
+          </select>
+        </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group control-medium">
+        <label class="control-label" for="field-fullname"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> ชื่อเต็ม</label>
+        <div class="controls ">
+      <input id="field-fullname" type="text" name="fullname" value="{{data.fullname}}" placeholder="สมชาย ใจกว้าง" class="form-control" required="required">
+        </div>
+        </div>
+    </div>
+    <!-- <div class="col-md-2">
+      <div class="form-group control-medium">
+        <label class="control-label" for="field-age"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> อายุ</label>
+        <div class="controls ">
+      <input id="field-age" type="text" name="custom_age" value="{{data.custom_age}}" maxlength="2" pattern="[0-9]{1,}" title="กรุณาระบุเฉพาะ ตัวเลข" placeholder="29" class="form-control" required="required">
+        </div>
+        </div>
+    </div> -->
+    <div class="col-md-4">
+      <div class="form-group control-medium">
+        <label class="control-label" for="field-age"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> วันเกิด</label>
+        <div class="controls ">
+        
+      <input id="field-age" type="text" name="custom_birthday" value="{{data.custom_birthday}}" placeholder="16/10/2535" class="form-control dateinput" required="required">
+      
+        
+        
+        </div>
+        </div> 
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-group control-medium">
+        
+        <label class="control-label" for="field-fullname">ที่อยู่</label>
+        <div class="controls ">
+          <textarea id="field-notes" name="custom_user_address"  cols="20" rows="5" placeholder="" class="form-control">{{data.custom_user_address}}</textarea>
+        </div>
+        </div>
+    </div>
+  </div>
+  <input id="user_type" type="text" name="custom_user_type" value="{{data.custom_user_type}}" style="display: none;">
+  <div id="org-box">
+
+ 
+</div>
+
+<h1>รายละเอียดการขอข้อมูล</h1>
+<div class="row">
+  <div class="col-md-12">
+    <div class="form-group control-medium">
+      <span title="ต้องการฟิลด์นี้" class="control-required">*</span>
+      <label class="control-label" for="field-fullname">ประเภทและชนิดของข้อมูลที่ต้องการร้องขอ</label>
+      <div class="controls ">
+        <!-- <select class="form-control" id="data_set" name="custom_request_data_type" multiple  required="required" > 
+          <option value="ข้อมูลทะเบียน" {% if data.custom_request_data_type=='ข้อมูลทะเบียน'%} selected="selected" {% endif %}>ข้อมูลทะเบียน</option>
+          <option value="ข้อมูลสถิติ" {% if data.custom_request_data_type=='ข้อมูลสถิติ'%} selected="selected" {% endif %}>ข้อมูลสถิติ</option>
+          <option value="ข้อมูลภูมิสารสนเทศเชิงพื้นที่" {% if data.custom_request_data_type=='ข้อมูลภูมิสารสนเทศเชิงพื้นที่'%} selected="selected" {% endif %}>ข้อมูลภูมิสารสนเทศเชิงพื้นที่</option>
+          <option value="ข้อมูลหลากหลายประเภท" {% if data.custom_request_data_type=='ข้อมูลหลากหลายประเภท'%} selected="selected" {% endif %}>ข้อมูลหลากหลายประเภท</option>
+          <option value="ข้อมูลประเภทอื่นๆ" {% if data.custom_request_data_type=='ข้อมูลประเภทอื่นๆ'%} selected="selected" {% endif %}>ข้อมูลประเภทอื่นๆ</option>
+        </select> -->
+        
+        <fieldset class="checkboxes">
+          <label for="field-data_format-Database">
+            <input id="ck1" type="checkbox" name="custom_request_data_type" value="ข้อมูลทะเบียน" >
+            ข้อมูลทะเบียน
+          </label> </br>
+          <label   for="field-data_format-CSV">
+            <input id="ck2"  type="checkbox" name="custom_request_data_type" value="ข้อมูลสถิติ" >
+            ข้อมูลสถิติ
+          </label></br>
+          <label for="field-data_format-CSV">
+            <input id="ck3"  type="checkbox" name="custom_request_data_type" value="ข้อมูลภูมิสารสนเทศเชิงพื้นที่" >
+            ข้อมูลภูมิสารสนเทศเชิงพื้นที่
+          </label></br>
+          <label for="field-data_format-CSV">
+            <input id="ck4" type="checkbox" name="custom_request_data_type" value="ข้อมูลหลากหลายประเภท" >
+            ข้อมูลหลากหลายประเภท
+          </label></br>
+          <label for="field-data_format-CSV">
+            <input id="ck5" type="checkbox" name="custom_request_data_type" value="ข้อมูลประเภทอื่นๆ" >
+            ข้อมูลประเภทอื่นๆ
+          </label>
+        </fieldset>
+      </div>
+      </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <div class="form-group control-medium">
+      <span title="ต้องการฟิลด์นี้" class="control-required">*</span>
+      <label class="control-label" for="field-fullname">วัตถุประสงค์การขอข้อมูล</label>
+      <div class="controls ">
+        <textarea id="field-notes" name="custom_request_data_details" cols="20" rows="5" placeholder="" class="form-control" required>{{data.custom_request_data_details}}</textarea>
+      </div>
+      </div>
+  </div>
+</div>
+
+    {% if data.custom_user_type=="2" %}
+    <h1>ข้อมูลองค์กร/หน่วยงาน</h1>
+    <div class="row">
+    <div class="col-md-12">
+      <div class="form-group control-medium">
+        <span title="ต้องการฟิลด์นี้" class="control-required">*</span>
+        <label class="control-label" for="field-fullname">ชื่อองค์กร/หน่วยงาน</label>
+        <div class="controls ">
+        
+      <input id="field-fullname" type="text" name="custom_org_name" value="{{data.custom_org_name}}" placeholder="ชื่อองค์กร/หน่วยงาน" class="form-control" required>
+      
+        
+        
+        </div>
+        </div>
+    </div>
+  </div>
+    
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group control-medium">
+            <span title="ต้องการฟิลด์นี้" class="control-required">*</span>
+            <label class="control-label" for="field-fullname">ที่อยู่ องค์กร/หน่วยงาน</label>
+            <div class="controls ">
+              <textarea id="field-notes" name="custom_org_address" cols="20" rows="5" placeholder="" class="form-control" required>{{data.custom_org_address}}</textarea>
+            </div>
+            </div>
+        </div>
+      </div>
+    {% endif %}
+    
+    <!-- {% if show_email_notifications %}
+      {% call form.checkbox('activity_streams_email_notifications', label=_('Subscribe to notification emails'), id='field-activity-streams-email-notifications', value=True, checked=g.userobj.activity_streams_email_notifications) %}
+      {% set helper_text = _("You will receive notification emails from {site_title}, e.g. when you have new activities on your dashboard."|string) %}
+      {{ form.info(helper_text.format(site_title=g.site_title), classes=['info-help-tight']) }}
+      {% endcall %}
+    {% endif %} -->
+   
+    {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
+    {% set is_url = data.image_url and data.image_url.startswith('http') %}
+
+    {#{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label=_('Profile picture'), url_label=_('Profile picture URL') ) }#}
+
+  </fieldset>
+
+  <fieldset>
+    <legend>{{ _('Change password') }}</legend>
+    {{ form.input('old_password',
+                  type='password',
+                  label=_('Sysadmin Password') if is_sysadmin else _('Old Password'),
+                  id='field-password-old',
+                  value=data.oldpassword,
+                  error=errors.oldpassword,
+                  classes=['control-medium'],
+                  attrs={'autocomplete': 'off', 'class': 'form-control'}
+                  ) }}
+
+    {{ form.input('password1', type='password', label=_('Password'), id='field-password', value=data.password1, error=errors.password1, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'} ) }}
+
+    {{ form.input('password2', type='password', label=_('Confirm Password'), id='field-password-confirm', value=data.password2, error=errors.password2, classes=['control-medium'], attrs={'autocomplete': 'off', 'class': 'form-control'}) }}
+  </fieldset>
+  
+  <div class="form-actions">
+    {% block delete_button %}
+      {% if h.check_access('user_delete', {'id': data.id}) and data.state != 'deleted' %}
+        <a class="btn btn-danger pull-left" href="{% url_for 'user_delete', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this User?') }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
+      {% elif h.check_access('user_delete', {'id': data.id}) and data.state != 'active' %}
+        <a class="btn btn-success pull-left" href="{% url_for 'user_active', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to active this User?') }}">{{ _('Active') }}</a>
+      {% endif %}
+    {% endblock %}
+    {% block generate_button %}
+    
+       {% if h.check_access('user_generate_apikey', {'id': data.id})  %}
+       
+        <a class="btn btn-warning" href="{% url_for 'user.generate_apikey', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to regenerate the API key?') }}">{% block generate_button_text %}{{ _('Regenerate API Key') }}{% endblock %}</a>
+      {% endif %} 
+    {% endblock %}
+    {{ form.required_message() }}
+    
+    <button class="btn btn-primary" type="submit" name="save">{{ _('Update Profile') }}</button>
+  </div>
+  <input type="text" id="custom_data_type" value="{{data.custom_request_data_type}}" style="display: none;">
+  <script>
+    $(function(){
+      // $("#data_set").select2();
+      if(String($("#custom_data_type").val())!=="undefined" && String($("#custom_data_type").val())!=="None"){
+        var json = JSON.parse(String($("#custom_data_type").val()));
+        for(var i=0;i<json.length;i++){
+          if(String(json[i])=="ข้อมูลทะเบียน"){
+            $("#ck1").prop('checked', true);
+          } else if(String(json[i])=="ข้อมูลสถิติ"){
+            $("#ck2").prop('checked', true);
+          } else if(String(json[i])=="ข้อมูลภูมิสารสนเทศเชิงพื้นที่"){
+            $("#ck3").prop('checked', true);
+          } else if(String(json[i])=="ข้อมูลหลากหลายประเภท"){
+            $("#ck4").prop('checked', true);
+          }else if(String(json[i])=="ข้อมูลประเภทอื่นๆ"){
+            $("#ck5").prop('checked', true);
+          }
+        }
+      }
+
+      $('.dateinput').datetimepicker({
+            "allowInputToggle": true,
+            "showClose": true,
+            "showClear": true,
+            "showTodayButton": true,
+            "format": "YYYY-MM-DD",
+        });
+     
+    });
+    function change_date(){
+    //  var date_now =  String($("#date_now").val()).split("-");
+    //  var date_select = String($("#expiration-date").val()).split("-");
+    //  var now = new Date(date_now[1]+"/"+date_now[2]+"/"+date_now[0]);
+    //  var ck = new Date(date_select[1]+"/"+date_select[2]+"/"+date_select[0]);
+    //  if (now > ck ){
+    //    $("#custom_status_pending").prop("selected",true);
+    //    $("#custom_status").attr("disabled",true);
+    // }else{
+    //   $("#custom_status").removeAttr("disabled",false);
+    // }
+    }
+
+    function check_date(){
+    //   var date_now =  String($("#date_now").val()).split("-");
+    //  var date_select = String($("#expiration-date").val()).split("-");
+    //  var now = new Date(date_now[1]+"/"+date_now[2]+"/"+date_now[0]);
+    //  var ck = new Date(date_select[1]+"/"+date_select[2]+"/"+date_select[0]);
+    //  if (now > ck ){
+    //    $("#custom_status_pending").prop("selected",true);
+      
+    // }
+    }
+  </script>
+</form>

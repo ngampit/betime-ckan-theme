@@ -1,0 +1,91 @@
+{% ckan_extends %}
+
+{% block header_account_logged %}
+<!-- <li>
+  <a href="/user" title="{{ _('User') }}">
+    <i class="fa fa-user" aria-hidden="true"></i>
+    <span class="text">{{ _('User') }}</span>
+  </a>
+</li> -->
+  {{ super() }}
+{% endblock %}
+
+{% block header_account_container_content %}
+
+{% if g.site_logo %}
+      <a class="logo" href="{{ h.url_for('home.index') }}"><img src="{{ h.url_for_static_or_external(g.site_logo) }}" alt="{{ g.site_title }}" title="{{ g.site_title }}" /></a>
+      {% else %}
+   
+        <a class="logo" href="{{ h.url_for('home.index') }}"><img src="/base/images/logo.png" alt="{{ g.site_title }}" title="{{ g.site_title }}" /></a>
+
+      {% if g.site_description %}
+      <h2>{{ g.site_description }}</h2>{% endif %} {% endif %}
+  {{ super() }}
+{% endblock %}
+
+{% block header_logo %}{% endblock %}
+
+{% block header_site_navigation %}
+<nav class="section navigation">
+  <ul class="nav nav-pills">
+      {% block header_site_navigation_tabs %}
+     
+      <li>
+        <div class="menu-text-link">
+        <a href="/">หน้าหลัก</a>
+      </div>
+      </li>
+      <li>
+        <div class="menu-text-link">
+        <a href="/dataset">ชุดข้อมูล</a>
+      </div>
+      </li>
+      <li>
+        <div class="menu-text-link">
+        <a href="/organization">องค์กร</a>
+      </div>
+      </li>
+      <li>
+        <div class="menu-text-link">
+        <a href="/group">กลุ่มข้อมูล</a>
+      </div>
+      </li>
+      <li>
+        <div class="menu-text-link">
+        <a href="/about">เกี่ยวกับ</a>
+      </div>
+      </li>
+      <li>
+        <div class="menu-text-link">
+        <a href="/listapi">API</a>
+      </div>
+
+      {% if h.check_access('sysadmin') %}
+      <li>
+        <div class="menu-text-link">
+        <a href="/master_connection">เชื่อมโยงฐานข้อมูล</a>
+      </div>
+      </li>
+      {% endif %}
+
+{% endblock %}
+  </ul>
+</nav>
+{% endblock %} {% block header_site_search %}
+<form class="section site-search simple-input" action="{% url_for 'dataset.search' %}" method="get">
+  <div class="field">
+    <label for="field-sitewide-search">{% block header_site_search_label %}{{ _('Search Datasets') }}{% endblock %}</label>
+    <input id="field-sitewide-search" type="text" class="form-control" name="q" placeholder="{{ _('Search') }}" aria-label="{{ _('Search datasets') }}"/>
+    <button class="btn-search" type="submit" aria-label="{{ _('Submit') }}"><i class="fa fa-search"></i></button>
+  </div>
+</form>
+
+{% endblock %}
+
+{% block header_wrapper %}
+{{ super() }}
+<div class="box-head-banner">
+  <div class="b-left"><img src="/base/images/b-left.png"></div>
+  <div class="b-right"><img src="/base/images/b-right.png"></div>
+  </div>
+{% endblock %}

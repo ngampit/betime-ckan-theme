@@ -1,0 +1,120 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _("การเชื่อมโยงฐานข้อมูล") }}{% endblock %}
+{% block breadcrumb_content %}
+  <li class="active"><a href="/master_connection">{{ _('การเชื่อมโยงฐานข้อมูล') }}</a></li>
+{% endblock %}
+
+{% block primary_content %}
+  <article class="module">
+    <header class="module-content page-header">
+                        {{ c.data_json }}
+      <div class="content_action">
+        <a class="btn btn-primary" style="    margin-bottom: 10px;"  href="/add_master_connection"><i class="fa fa-plus-square"></i> เพิ่ม ฐานข้อมูล</a>
+      </div>
+    <ul class="nav nav-tabs">
+      <h3 id="count_db" class="page-heading">จำนวน 3 ฐานข้อมูล</h3>
+    </ul> 
+  </header>
+  <div class="module-content">
+  <div class="page_primary_action">
+    </div>
+  <input type="text" id="apikey" style="display: none;" value="{{c.userobj.apikey}}">
+<table class="table table-header table-hover table-bordered">
+<thead>
+<tr>
+<th>ชื่อฐานข้อมูล</th>
+<th style="width:120px">ประเภทฐานข้อมูล</th>
+<th style="width:88px">การจัดการ</th>
+</tr>
+</thead>
+<tbody id="body_tb">
+
+
+
+</tbody>
+</table>
+
+</div>
+  </article>
+{% endblock %}
+
+
+
+
+
+
+{% block secondary_content %}
+  <section class="module module-narrow">
+    <h2 class="module-heading">
+      รายละเอียด
+    </h2>
+    <div class="module-content">
+      <p>   ข้อมูลแหล่งการเชื่อมโยงจาก Database </p>
+    </div>
+ 
+  </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var conf = confCkan();
+var host = conf.api_host;
+var settings = {
+  "url": host+"master",
+  "method": "GET",
+  "headers": {
+    "Authorization": $("#apikey").val()
+  },
+  "timeout": 0,
+};
+
+$.ajax(settings).done(function (response) {
+ 
+  var html ="";
+  
+  var data_list = response.data_list;
+  $("#count_db").html("จำนวน "+data_list.length+" ฐานข้อมูล");
+  for(var i=0;i<data_list.length;i++){
+   
+  html += '<tr>'+
+    '<td>'+data_list[i].topic+'</td>'+
+      '<td>'+data_list[i].db_type+'</td>'+
+      '<td>'+
+        '<div class="btn-group pull-right"> '+
+          '<a class="btn btn-default btn-sm" href="/edit_master_connection/'+data_list[i].id_connection+'" title="แก้ไข">'+
+            '<i class="fa fa-wrench"></i>'+
+            '</a>'+
+            '<a class="btn btn-danger btn-sm" href="javascript:void(0);" onclick="del(\''+data_list[i].id_connection+'\')"><i class="fa fa-times"></i></a>'+
+            '</div>'+
+            '</td>'+
+            '</tr>';
+  }
+
+  $("#body_tb").html(html);
+});
+
+
+function del(id){
+
+
+    
+    var settings = {
+  "url": host+"master/delete/"+id,
+  "method": "GET",
+  "headers": {
+    "Authorization": $("#apikey").val()
+  },
+  "timeout": 0,
+};
+
+$.ajax(settings).done(function (response) {
+  window.location.href ="/master_connection";
+});
+}
+</script>
+
+  {{ super() }}
+
+  
+{% endblock %}

@@ -1,0 +1,10 @@
+{% set groups = h.get_featured_groups(stats['group_count']) %}
+
+{% for group in groups %}
+
+<div class="box-group-home" >
+  <a href="/group/{{group.name}}">
+    <img src="{{group.image_display_url}}">
+  </a>
+</div>
+{% endfor %}

@@ -1,0 +1,62 @@
+<div class="banner-bottom">
+    <div class="b-left"><img src="/base/images/b-left.png"></div>
+    <div class="b-right"><img src="/base/images/b-right.png"></div>
+    </div>
+<footer class="site-footer">
+    <div class="container" style="padding-left: 0px;">
+      {% block footer_content %}
+      <div class="blockFooter">
+          {% block footer_nav %}
+           <div class="bgFooterTop">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-9 col-sm-9 col-xs-12">
+                            <div class="row">
+                                <div class="box-footer-left">
+                                    <div class="footer-promoted">
+                                    {% if g.promoted_banner %}
+          <img class="img-responsive"  src="{{ h.url_for_static(g.promoted_banner) }}" />
+        {% else %}
+          <img class="img-responsive"  src="{{ h.url_for_static('/base/images/promoted.png') }}" alt="Placeholder"  />
+        {% endif %}
+    </div>
+    <div class="footer-content">
+        <p class="org-address">{{ g.site_org_address}}</p>
+        <x>โทร : </x> <p class="txt-footer"> {{ g.site_org_contact }}</p> 
+        <x>email : </x> <p class="txt-footer"> {{g.site_org_email }}</p> 
+       
+    </div>
+   
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-sm-3 col-xs-12">
+                            <div class="row">
+                                {% block footer_attribution %}
+                                <div class="col-md-12 col-sm-12 col-xs-12 text-right">
+                                    <span>
+                                        จำนวนผู้เข้าชม <span class="totalVisitor">{{ h.thai_gdc_get_stat_all_view() }}<!-- at {{ h.thai_gdc_get_last_update_tracking() }} --></span>
+                                    </span>
+                                </div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+          {% endblock %}
+      </div>
+      {% endblock %}
+    </div>
+    <div class="txt-footer-policy-link">
+        <p >{{ g.site_policy_link}}</p>
+      </div>
+    {% block footer_debug %}
+      {% if g.debug %}
+        {% include 'snippets/debug.html' %}
+      {% endif %}
+    {% endblock %}
+  </footer>
+  

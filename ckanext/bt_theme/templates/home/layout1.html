@@ -1,0 +1,279 @@
+{% if g.search_background %}
+  {% set background = g.search_background %}
+{% else %}
+  {% set background = '/base/images/cover.png' %}
+{% endif %}
+
+<style>
+  .homepage .stats ul li {
+    float: center;
+    width: 33%;
+}
+.box-head-banner{
+  display: none;
+}
+</style>
+
+<div role="main" class="hero" style="background-image: url('{{ background }}')">
+  <div class="head-menu">
+    <a href="/">หน้าหลัก</a>
+    <a href="/dataset">ชุดข้อมูล</a>
+    <a href="/organization">องค์กร</a>
+    <a href="/group">กลุ่มข้อมูล</a>
+    <a href="/about">เกี่ยวกับ</a>
+    <a href="/listapi">API</a>
+    {% if h.check_access('sysadmin') %}
+    <a href="/master_connection">เชื่อมโยงฐานข้อมูล</a>
+    {% endif %}
+  </div>
+    <div class="container">
+        <div class="row row1">
+          
+        </div>
+          <div class="row col2" style="position: unset;">
+            {% block search %}
+              {% snippet 'home/snippets/search.html' %}
+            {% endblock %}
+           
+            {% block stats %}
+              {% snippet 'home/snippets/stats.html' %}
+            {% endblock %}
+          </div>
+        
+      </div>
+</div>
+<div class=" box-footer-banner">
+<div class="b-left"><img src="/base/images/b-left.png"></div>
+<div class="b-right"><img src="/base/images/b-right.png"></div>
+</div>
+<div role="main">
+  <div class="container">
+    <div class="row row2">
+      {% block promoted %}
+        {% snippet 'home/snippets/promoted.html' %}
+      {% endblock %}
+    </div>
+    <div class="row">
+      <div class="separator"><h3>กลุ่มข้อมูล</h3></div>
+    </div>
+    <div class="row row2">
+      {% block featured_group %}
+        {% set stats = h.get_site_statistics() %}
+        {% snippet 'home/snippets/groups.html', stats=stats %}
+      {% endblock %}
+    </div>
+
+
+    <div class="row">
+      <div class="separator"><h3>TOP 5 ชุดข้อมูลที่มีคนเข้าใช้มากที่สุด</h3></div>
+    </div>
+  </br>
+    <div class="row row3">
+      <table class="table  table-hover table-bordered">
+        <thead>
+        <tr>
+          <th>ชื่อชุดข้อมูล</th>
+          <th style="width:100px">จำนวน</th>
+        </tr>
+        </thead>
+        <tbody id="body_tb_2">
+          
+         </tbody>
+        </table>
+    </div>
+
+    <div class="row">
+      <div class="separator"><h3>สถิติการเข้าใช้งานข้อมูล</h3></div>
+    </div>
+  </br>
+    <div class="row row3">
+      <div class="col-md-6">
+        <div id="container1" class="chart chart1"></div>
+      </div>
+
+      <div class="col-md-6">
+        <div id="container2" class="chart chart2"></div>
+      </div>
+    </div>
+   
+
+  </div>
+</div>
+<script type="text/javascript" src="/base/js/echarts.min.js"></script>
+<script type="text/javascript">
+
+ $(function(){
+  var settings = {
+  "url": "/data/sum",
+  "method": "GET"
+};
+
+$.ajax(settings).done(function (response) {
+  
+  c1(response.group);
+  c2(response.org);
+});
+
+
+var settings = {
+  "url": "http://172.22.0.105:8009/api/top5dataset",
+  "method": "GET"
+};
+
+$.ajax(settings).done(function (response) {
+  var html ="";
+
+  for(var i=0;i<response.length;i++){
+    html += '<tr>'+
+            '<th>'+response[i].title+'</th>'+
+            '<th style="width:100px">'+response[i].total+'</th>'+
+          '</tr>';
+
+  }
+ $("#body_tb_2").html(html);
+});
+
+ });
+
+ var myChart1 ; 
+  function c1(json){
+  var dom = document.getElementById("container1");
+  myChart1 = echarts.init(dom);
+  var app = {};
+  
+  var option;
+  option = {
+     title: {
+      text: 'กลุ่มข้อมูลที่ได้รับความนิยม 5 ลำดับ',
+      left: 'right',
+      textStyle: {
+      color: '#2E8B63',
+       fontWeight: '',
+      fontSize:'18px'
+      }
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      type: 'scroll',
+      icon: "circle",
+      orient: 'vertical',
+      left: 280,
+      top: 35,
+      textStyle: {
+      fontSize:'14px'
+      }
+    },
+    series: [
+      {
+         
+        name: 'กลุ่มข้อมูล',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        center: ['22%', '37%'],
+        
+        label: {
+           fontSize: '14px',
+          formatter: '{c}%',
+          position: 'inside',
+         
+          
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '18px',
+            fontWeight: 'bold'
+          }
+        },
+        labelLine: {
+          
+          show: false
+        },
+        
+        data: json
+      }
+    ]
+  };
+  
+  if (option && typeof option === 'object') {
+    myChart1.setOption(option);
+  }
+}
+var myChart2 ;
+function c2(json){
+  var dom = document.getElementById("container2");
+  myChart2 = echarts.init(dom);
+  var app = {};
+  
+  var option;
+  option = {
+     title: {
+      text: 'ข้อมูลองค์กรที่ได้รับความนิยม 5 ลำดับ',
+      left: 'right',
+      textStyle: {
+      color: '#2E8B63',
+       fontWeight: '',
+      fontSize:'18px'
+      }
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      type: 'scroll',
+      icon: "circle",
+      orient: 'vertical',
+      left: 265,
+      top: 35,
+      textStyle: {
+      fontSize:'14px'
+      }
+    },
+    series: [
+      {
+         
+        name: 'กลุ่มข้อมูล',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        center: ['22%', '37%'],
+        
+        label: {
+           fontSize: '14px',
+          formatter: '{c}%',
+          position: 'inside',
+         
+          
+        },
+        emphasis: {
+          label: {
+            show: true,
+            fontSize: '18px',
+            fontWeight: 'bold'
+          }
+        },
+        labelLine: {
+          
+          show: false
+        },
+        data: json
+      }
+    ]
+  };
+  
+  if (option && typeof option === 'object') {
+    myChart2.setOption(option);
+  }
+}
+
+window.addEventListener('resize',function(){
+  myChart1.resize();
+});
+
+window.addEventListener('resize',function(){
+  myChart2.resize();
+});
+  </script>

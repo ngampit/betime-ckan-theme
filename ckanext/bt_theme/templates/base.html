@@ -1,0 +1,19 @@
+{% ckan_extends %}
+
+{% block styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="/base/css/bt.css" />
+  <link rel="stylesheet" href="/base/css/loaders.min.css">
+  <script src="/base/js/jquery.min.js"></script>
+  <script src="/base/js/sweetalert.min.js"></script>
+  <script src="/base/js/datatables.min.js"></script>
+  <script src="/base/js/config.js"></script>
+  <div id="loader_box" >
+    <div class="loader"><div class="ball-scale-multiple"><div></div><div></div><div></div></div></div>
+  </div>
+  <script>
+    $(function(){
+     $("#loader_box").fadeOut();
+    });
+ </script>
+{% endblock %}

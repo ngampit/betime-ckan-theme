@@ -1,0 +1,288 @@
+{% ckan_extends %}
+
+{% block package_description %}
+<style>
+  .label {
+    color: white;
+    padding: 8px;
+  }
+  .gdcatalog-warning {
+    background-color: #e56100;
+    margin-left: 10px;
+    margin-right: 0px;
+  }
+  .gdcatalog-success {
+    background-color: #0e2540;
+    margin-right: 0px;
+  }
+  
+</style>
+
+<div class="modal fade" id="modal-download" role="dialog" style="">
+  <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">×</button>
+          <h4 class="modal-title">รายละเอียดการดาวน์โหลด</h4>
+      </div>
+      <div class="modal-body">
+          <input name="_token" type="hidden" value="NrwaoG7hMikLnYgVSbK4zLACgbF8uKDJFHtLkRMo">
+          <div class="row">
+
+
+              <div class="col-md-12">
+                  <div class="form-group">
+                      <label for="identity" class="control-label">ประเภทบุคลากร  </label>
+                      <select name="identity" id="identity" class="form-control">
+        <option value="1">ประชาชนทั่วไป</option>
+        <option value="2">หน่วยงานรัฐ</option>
+        <option value="3">หน่วยงานเอกชน</option>
+    </select>
+                     <!-- <input type="text" class="form-control" id="identity" name="identity" value="" placeholder="" required maxlength="13" minlength="13">
+                          -->
+                  </div>
+              </div>
+
+
+              <div class="col-md-12">
+                  <div class="form-group">
+                      <label for="description" class="control-label">วัตถุประสงค์ในการนำข้อมูลไปใช้  </label>
+                      <select class="form-control" name="description" id="description" required="">
+                          <option value="1">นำไปใช้ในด้านการศึกษา</option>
+                          <option value="2">นำไปใช้ในการวิเคราะห์วิจัย</option>
+                          <option value="3">นำไปใช้ในการกำหนดนโยบายหรือแผนงานต่างๆ</option>
+                          <option value="4">นำไปใช้ในการวางแผนเพื่อการลงทุน</option>
+                          <option value="5">นำไปใช้ในการวางแผนดำเนินการทางธุรกิจ</option>
+                          <option value="6">นำไปใช้ในประกอบกับข้อมูลอื่น ๆ ในหน่วยงานตนเอง</option>
+                          <option value="7">นำไปใช้ในการวิเคราะห์เพื่อแก้ไขปัญหา</option>
+                      </select>
+                      <!-- <textarea class="form-control" name="description" id="description" style="resize: none;" placeholder=""></textarea> -->
+                  </div>
+              </div>
+
+              <div class="col-md-12">
+                <div class="form-group">
+                <label for="description" class="control-label">คะแนนความพึงพอใจ  </label>
+                <div class="cm_rating_div2">
+                  <a class="star-number cm_rating_star_number str1" href="javascript:void(0)" onclick="add_start('1')" lang="x-star-number"> 
+                    ★
+                    </a>
+                    <a class="star-number cm_rating_star_number str2" href="javascript:void(0)" onclick="add_start('2')" lang="x-star-number"> 
+                      ★
+                      </a>
+                      <a class="star-number cm_rating_star_number str3" href="javascript:void(0)" onclick="add_start('3')" lang="x-star-number"> 
+                        ★
+                        </a>
+                        <a class="star-number cm_rating_star_number str4" href="javascript:void(0)" onclick="add_start('4')" lang="x-star-number"> 
+                          ★
+                          </a>
+                          <a class="star-number cm_rating_star_number str5" href="javascript:void(0)" onclick="add_start('5')" lang="x-star-number"> 
+                            ★
+                            </a>
+                  <input type="hidden" id="rating_star" value="5">
+                  <input type="hidden" id="link_download" value="">
+                  <input type="hidden" id="file_type_download" value="XLSX">
+                  
+              </div>
+            </div>
+              </div>
+
+              <div class="col-md-12">
+                <div class="form-group">
+                <label for="description" class="control-label">ข้อเสนอแนะเพิ่มเติม  </label>
+                <textarea id="comment_des" class="form-control"></textarea>
+            </div>
+              </div>
+
+          </div>
+
+      </div>
+      <div class="modal-footer">
+          <button type="button" onclick="download_file()" class="btn btn-success last-download" style="background-color: #013361;">ดาวน์โหลด</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">ปิด</button>
+      </div>
+      </div>
+
+  </div>
+</div>
+
+
+{% set gdcatalog_status_show = h.thai_gdc_get_gdcatalog_status_show() %}
+{% if gdcatalog_status_show == 'true' and pkg.allow_harvest != 'False' and (not pkg.reference_url_catalog or pkg.reference_url_catalog == '') %}
+<div class="text-right" style="margin-bottom: 20px;">
+  {% set return_state = h.thai_gdc_get_gdcatalog_state('published', pkg.id) %}
+  {% if return_state | length > 0 and 'result' in return_state %}
+    {% set metadata_modified = return_state.get('result')[0]['metadata_modified'] %}
+    {% if metadata_modified != '' %}
+    {% set gdcatalog_portal_url = h.thai_gdc_get_gdcatalog_portal_url() %}
+    <span class="label label-inverse gdcatalog-success">
+      <a href="{{ gdcatalog_portal_url }}/dataset/gdpublish-{{ return_state.get('result')[0]['name'] }}" target="_blank" style="color: white;">
+        <i class="fa fa-check"></i>
+        GD-Catalog: {{ _('COMPLETED') }} เมื่อ {{ h.thai_gdc_day_thai(h.date_str_to_datetime(metadata_modified)) }}
+      </a>
+    </span>
+    {% endif %}
+
+    {% if h.check_access('package_update', {'id':pkg.id }) %}
+      {% set return_state = h.thai_gdc_get_gdcatalog_state('nonpublish', pkg.id) %}
+      {% set state = return_state.get('result')[0]['governance_state'] %}
+      {% if state != '' %}
+        {% set validate_time = return_state.get('result')[0]['validate_time'] %}
+        {% if state == 'VALIDATE' and validate_time == '' %}
+        <span class="label label-inverse gdcatalog-warning">
+          <i class="fa fa-lock"></i>
+          GD-Catalog: {{ _('WAIT_VALIDATE') }}
+        </span>
+        {% elif state == 'VALIDATE' and validate_time != '' %}
+        <span class="label label-inverse gdcatalog-warning">
+          <i class="fa fa-lock"></i>
+          GD-Catalog: {{ _('VALIDATE') }}
+        </span>
+        {% elif state == 'VALIDATE_MODIFIED' and validate_time == '' %}
+        <span class="label label-inverse gdcatalog-warning">
+          <i class="fa fa-lock"></i>
+          GD-Catalog: {{ _('WAIT_VALIDATE_MODIFIED') }}
+        </span>
+        {% elif state == 'VALIDATE_MODIFIED' and validate_time != '' %}
+        <span class="label label-inverse gdcatalog-warning">
+          <i class="fa fa-lock"></i>
+          GD-Catalog: {{ _('VALIDATE_MODIFIED') }}
+        </span>
+        {% elif state == 'APPROVAL' %}
+        <span class="label label-inverse gdcatalog-warning">
+          <i class="fa fa-lock"></i>
+          GD-Catalog: {{ _('APPROVAL') }}
+        </span>
+        {% elif state == 'WAIT_REVOKE' and validate_time == '' %}
+        <span class="label label-inverse gdcatalog-warning">
+          <i class="fa fa-lock"></i>
+          GD-Catalog: {{ _('WAIT_REVOKE') }}
+        </span>
+        {% elif state == 'WAIT_REVOKE' and validate_time != '' %}
+        <span class="label label-inverse gdcatalog-warning">
+          <i class="fa fa-lock"></i>
+          GD-Catalog: {{ _('VALIDATE_REVOKE') }}
+        </span>
+        {% elif state == 'REVOKE' %}
+        <span class="label label-inverse gdcatalog-warning">
+          <i class="fa fa-lock"></i>
+          GD-Catalog: {{ _('REVOKE') }}
+        </span>
+        {% elif state == 'WAIT' %}
+        <span class="label label-inverse gdcatalog-warning">
+          <i class="fa fa-lock"></i>
+          GD-Catalog: {{ _('WAIT') }}
+        </span>
+        {% elif state == 'REJECT' %}
+        {% set modified_at = return_state.get('result')[0]['metadata_modified'] %}
+        <span class="label label-inverse gdcatalog-warning">
+          <i class="fa fa-lock"></i>
+          {% if h.thai_gdc_convert_string_todate(pkg.metadata_modified, "%Y-%m-%dT%H:%M:%S.%f") > h.thai_gdc_convert_string_todate(modified_at, "%Y-%m-%dT%H:%M:%S.%f") %}
+          GD-Catalog: {{ _('REJECT') }} (ปรับปรุงแล้ว)
+          {% else %}
+          GD-Catalog: {{ _('REJECT') }}
+          {% endif %}
+        </span>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+</div>
+{% endif %}
+
+{% if pkg.private %}
+<span class="dataset-private label label-inverse pull-right">
+  <i class="fa fa-lock"></i>
+  {{ _('Private') }}
+</span>
+{% endif %}
+{% block package_archive_notice %}
+{% if is_activity_archive %}
+<div class="alert alert-danger">
+  {% trans url=h.url_for(pkg.type ~ '.read', id=pkg.id) %}
+  You're currently viewing an old version of this dataset. To see the
+  current version, click <a href="{{ url }}">here</a>.
+  {% endtrans %}
+</div>
+{% endif %}
+{% endblock %}
+<h1>
+  {% block page_heading %}
+  {{ h.dataset_display_name(pkg) }}
+  {% if pkg.state.startswith('draft') %}
+  [{{ _('Draft') }}]
+  {% endif %}
+  {% if pkg.state == 'deleted' %}
+  [{{ _('Deleted') }}]
+  {% endif %}
+  {% endblock %}
+</h1>
+{% block package_notes %}
+{% if pkg.notes %}
+<div class="notes embedded-content">
+  {{ h.render_markdown(h.get_translated(pkg, 'notes')) }}
+</div>
+{% endif %}
+{% endblock %}
+{# FIXME why is this here? seems wrong #}
+<span class="insert-comment-thread"></span>
+
+<input type="hidden" id="rating_star" value="5">
+                    <input type="hidden" id="link_download" value="">
+                    <input type="hidden" id="file_type_download" value="5">
+ <input type="text" id="data_package_id" class="hidden" value="{{pkg_dict.id}}">                   
+<script>
+function popupdownload (url,type){
+  $("#modal-download").modal();
+  $("#link_download").val(url);
+  $("#file_type_download").val(type);
+}  
+function download_file(){
+  $("#modal-download").modal("hide");
+  var package_id =$("#data_package_id").val();
+  var url = $("#link_download").val();
+  var str=$("#rating_star").val();
+  var identity = $("#identity").val();
+  var id_detail = $("#description").val();
+  var file_type = $("#file_type_download").val();
+  var comment = $("#comment_des").val(); 
+
+  var json = {
+    "package_id":package_id,
+    "url":url,
+    "str":str,
+    "id_identity":identity,
+    "id_detail":id_detail,
+    "file_type":file_type,
+    "comment":comment
+
+  }
+
+  var settings = {
+  "url": "/data/downloadfile",
+  "method": "POST",
+  "timeout": 0,
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "data": JSON.stringify(json),
+};
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+});
+
+  window.open(url, "download");
+}
+
+function add_start(st){
+ $(".cm_rating_star_number").css("color","wheat");
+ for(var i=1;i<=st;i++){
+  $(".str"+i).css("color","#ff9800");
+ }
+ $("#rating_star").val(st);
+}
+</script>
+{% endblock %}

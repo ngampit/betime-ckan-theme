@@ -1,0 +1,233 @@
+{% import "macros/form.html" as form %}
+<style>
+ .checkboxes label:after {
+    content: "" !important;
+}
+</style>
+<form id="user-register-form" action="" method="post" enctype="multipart/form-data">
+
+  <div class="row">
+  
+    <div class="col-md-6 box-regist">
+      <button id="regit_type_1" class="btn btn-regist btn-regist-action" onclick="switce_type(this)"  type="button"> ข้อมูลการลงทะเบียนสำหรับบุคคลทั่วไป </button>
+    </div>
+    <div class="col-md-6 box-regist">
+      <button  id="regit_type_2"class="btn btn-regist" onclick="switce_type(this)" type="button"> ข้อมูลการลงทะเบียนสำหรับ เอกชน/ภาครัฐ/สถาบันการศึกษา</button>
+    </div>
+ 
+</div>
+
+  {{ form.errors(error_summary) }}
+  {{ form.input("name", id="field-username", label=_("Username")+" (กรอก Username เป็นภาษาอังกฤษ)", placeholder=_("username"), value=data.name, error=errors.name, classes=["control-medium"], is_required=True) }}
+  
+  {{ form.input("email", id="field-email", label=_("Email"), type="email", placeholder=_("joe@example.com"), value=data.email, error=errors.email, classes=["control-medium"], is_required=True) }}
+  {{ form.input("password1", id="field-password", label=_("Password"), type="password", placeholder="••••••••", value=data.password1, error=errors.password1, classes=["control-medium"], is_required=True) }}
+  {{ form.input("password2", id="field-confirm-password", label=_("Confirm"), type="password", placeholder="••••••••", value=data.password2, error=errors.password2, classes=["control-medium"], is_required=True) }}
+
+
+  <h1>ข้อมูลส่วนบุคคลผู้ขอ</h1>
+  <div class="row">
+    <div class="col-md-2">
+      <div class="form-group control-medium">
+        <span title="ต้องการฟิลด์นี้" class="control-required">*</span>
+        <label class="control-label" for="field-fullname">คำนำหน้าชื่อ</label>
+        <div class="controls ">
+          <select class="form-control" name="custom_prefix_name">
+            <option value="นาย">นาย</option>
+            <option value="นาง">นาง</option>
+            <option value="นางสาว">นางสาว</option>
+          </select>
+        </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group control-medium">
+        <label class="control-label" for="field-fullname"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> ชื่อเต็ม</label>
+        <div class="controls ">
+      <input id="field-fullname" type="text" name="fullname" value="" placeholder="สมชาย ใจกว้าง" class="form-control" required="required">
+        </div>
+        </div>
+    </div>
+    <!-- <div class="col-md-2">
+      <div class="form-group control-medium">
+        <label class="control-label" for="field-age"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> อายุ</label>
+        <div class="controls ">
+      <input id="field-age" type="text" name="custom_age" value="" placeholder="29" pattern="[0-9]{1,}" title="กรุณาระบุเฉพาะ ตัวเลข" placeholder="29" maxlength="2" class="form-control" required="required">
+        </div>
+        </div>
+    </div> -->
+    <div class="col-md-4">
+      <div class="form-group control-medium">
+        <label class="control-label" for="field-age"><span title="ต้องการฟิลด์นี้" class="control-required">*</span> วันเกิด</label>
+        <div class="controls ">
+        
+      <input id="field-age" type="text" name="custom_birthday" value="" placeholder="16/10/2535" class="form-control dateinput" required="required">
+      
+        
+        
+        </div>
+        </div> 
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-12">
+      <div class="form-group control-medium">
+        
+        <label class="control-label" for="field-fullname">ที่อยู่</label>
+        <div class="controls ">
+          <textarea id="field-notes" name="custom_user_address" cols="20" rows="5" placeholder="" class="form-control"></textarea>
+        </div>
+        </div>
+    </div>
+  </div>
+  <input id="user_type" type="text" name="custom_user_type" value="1" style="display: none;">
+  <div id="org-box">
+
+ 
+</div>
+
+<h1>รายละเอียดการขอข้อมูล</h1>
+<div class="row">
+  <div class="col-md-12">
+    <div class="form-group control-medium">
+      <span title="ต้องการฟิลด์นี้" class="control-required">*</span>
+      <label class="control-label" for="field-fullname">ประเภทและชนิดของข้อมูลที่ต้องการร้องขอ</label>
+      
+      <div class="controls ">
+        <!-- <div class="contenedor-select2">
+        <select class="form-control" id="data_set" name="custom_request_data_type" multiple required>
+          <option value="ข้อมูลทะเบียน">ข้อมูลทะเบียน</option>
+          <option value="ข้อมูลสถิติ">ข้อมูลสถิติ</option>
+          <option value="ข้อมูลภูมิสารสนเทศเชิงพื้นที่">ข้อมูลภูมิสารสนเทศเชิงพื้นที่</option>
+          <option value="ข้อมูลหลากหลายประเภท">ข้อมูลหลากหลายประเภท</option>
+          <option value="ข้อมูลประเภทอื่นๆ">ข้อมูลประเภทอื่นๆ</option>
+        </select>
+      </div> -->
+      <fieldset class="checkboxes">
+        <input  type="checkbox" name="custom_request_data_type " value="ข้อมูล opendata" style="display:none" checked>
+      <label for="field-data_format-Database">
+        <input  type="checkbox" name="custom_request_data_type" value="ข้อมูลทะเบียน" >
+        ข้อมูลทะเบียน
+      </label> </br>
+      <label for="field-data_format-CSV">
+        <input  type="checkbox" name="custom_request_data_type" value="ข้อมูลสถิติ" >
+        ข้อมูลสถิติ
+      </label></br>
+      <label for="field-data_format-CSV">
+        <input  type="checkbox" name="custom_request_data_type" value="ข้อมูลภูมิสารสนเทศเชิงพื้นที่" >
+        ข้อมูลภูมิสารสนเทศเชิงพื้นที่
+      </label></br>
+      <label for="field-data_format-CSV">
+        <input  type="checkbox" name="custom_request_data_type" value="ข้อมูลหลากหลายประเภท" >
+        ข้อมูลหลากหลายประเภท
+      </label></br>
+      <label for="field-data_format-CSV">
+        <input  type="checkbox" name="custom_request_data_type" value="ข้อมูลประเภทอื่นๆ" >
+        ข้อมูลประเภทอื่นๆ
+      </label>
+    </fieldset>
+      </div>
+
+      </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <div class="form-group control-medium">
+      <span title="ต้องการฟิลด์นี้" class="control-required">*</span>
+      <label class="control-label" for="field-fullname">วัตถุประสงค์การขอข้อมูล</label>
+      <div class="controls ">
+        <textarea id="field-notes" name="custom_request_data_details" cols="20" rows="5" placeholder="" class="form-control" required></textarea>
+      </div>
+      </div>
+  </div>
+</div>
+
+    {% set is_upload = data.image_url and not data.image_url.startswith('http') %}
+    {% set is_url = data.image_url and data.image_url.startswith('http') %}
+
+    {#{ form.image_upload(data, errors, is_upload_enabled=h.uploads_enabled(), is_url=is_url, is_upload=is_upload, upload_label=_('Profile picture'), url_label=_('Profile picture URL')) }#}
+
+
+
+
+  {% if g.recaptcha_publickey %}
+    {% snippet "user/snippets/recaptcha.html", public_key=g.recaptcha_publickey %}
+  {% endif %}
+
+  {{ form.required_message() }}
+
+  <div class="form-actions">
+    {% block form_actions %}
+    <button class="btn btn-primary" type="submit" name="save">{{ _("Create Account") }}</button>
+    {% endblock %}
+  </div>
+</form>
+<div id="org-data" style="display:none">
+
+  
+  <h1>ข้อมูลองค์กร/หน่วยงาน</h1>
+  <div class="row">
+  <div class="col-md-12">
+    <div class="form-group control-medium">
+      <span title="ต้องการฟิลด์นี้" class="control-required">*</span>
+      <label class="control-label" for="field-fullname">ชื่อองค์กร/หน่วยงาน</label>
+      <div class="controls ">
+      
+    <input id="field-fullname" type="text" name="custom_org_name" value="" placeholder="ชื่อองค์กร/หน่วยงาน" class="form-control" required>
+    
+      
+      
+      </div>
+      </div>
+  </div>
+</div>
+  
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group control-medium">
+          <span title="ต้องการฟิลด์นี้" class="control-required">*</span>
+          <label class="control-label" for="field-fullname">ที่อยู่ องค์กร/หน่วยงาน</label>
+          <div class="controls ">
+            <textarea id="field-notes" name="custom_org_address" cols="20" rows="5" placeholder="" class="form-control" required></textarea>
+          </div>
+          </div>
+      </div>
+    </div>
+
+
+  
+
+</div>
+
+<script>
+  $(function() {
+    $("#user-register-form input").attr("required","");
+    $(".checkboxes input").removeAttr("required");
+    $('#data_set').select2();
+
+    $('.dateinput').datetimepicker({
+            "allowInputToggle": true,
+            "showClose": true,
+            "showClear": true,
+            "showTodayButton": true,
+            "format": "YYYY-MM-DD",
+        });
+});
+
+function switce_type(e){
+
+  
+  var id = $(e).attr("id");
+  $(".btn-regist").attr("class","btn btn-regist ");
+  if(id=="regit_type_1"){
+    $("#user_type").val("1");
+    $("#org-box").html("");
+  }else{
+    $("#user_type").val("2");
+    $("#org-box").html($("#org-data").html());
+  }
+  $("#"+id).attr("class","btn btn-regist btn-regist-action");
+}
+</script>

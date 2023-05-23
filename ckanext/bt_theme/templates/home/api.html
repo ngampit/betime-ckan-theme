@@ -1,0 +1,333 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('About') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{% link_for _('API'), 'home.about' %}</li>
+{% endblock %}
+
+{% block primary %}
+<style>
+  th{
+    text-align: center;
+  }
+  .btn-success {
+    color: #fff;
+    background-color: #013361 !important;
+    border-color: #013361 !important;
+}
+.current {
+    border-radius: 50% !important;
+    color: white !important;
+    background: #080941 !important;
+    border-color: #080941 !important;
+}
+</style>
+ 
+
+<div class="modal fade right" id="exampleModalPreview" tabindex="-1" role="dialog" aria-labelledby="exampleModalPreviewLabel" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog-full-width modal-dialog momodel modal-fluid" role="document" style="width: 100%;padding: 50px;padding-top: 0px;">
+      <div class="modal-content-full-width modal-content ">
+          <div class=" modal-header-full-width   modal-header text-center" style="background-color: #013361; color: #fff;">
+              <h5 class="modal-title w-100" id="exampleModalPreviewLabel" style="font-size: 18px;">
+                แสดงรายการข้อมูลและรายละเอียดการเชื่อมโยง API
+                <button type="button" class="close " data-dismiss="modal" aria-label="Close">
+                  <span style="font-size: 1.3em;color:white" aria-hidden="true">×</span>
+              </button>
+              </h5>
+             
+          </div>
+          <div class="modal-body">
+              <div class="container">
+                  <div class="row">
+<div class="col-sm-12">
+<div class="form-group">
+   <label for="example-text-input" class="col-12 col-form-label"><strong>ชื่อ API</strong> </label><span id="lblapi_name"></span>
+   <div class="col-10" hidden="">
+       <input class="form-control" type="text" value="" readonly="readonly" id="api_name">
+   </div>
+</div>
+</div>
+
+
+                  </div>
+                  <div class="row">
+<div class="col-sm-12">
+<div class="form-group">
+   <label for="example-text-input" class="col-12 col-form-label"><strong>URL</strong> </label><span id="lbl_url"></span>
+   <div class="col-10" hidden="">
+       <input class="form-control" type="text" value="" readonly="readonly" id="api_url">
+   </div>
+</div>
+</div>
+
+<div class="col-sm-12">
+<div class="form-group">
+   <label for="example-text-input" class="col-12 col-form-label"><strong id="method">Method</strong>  </label><span id="lbl_method">GET</span>
+   <div class="col-10" hidden="">
+       <input class="form-control" type="text" value="" readonly="readonly" id="api_method">
+   </div>
+</div>
+</div>
+
+
+
+
+
+
+<div class="col-sm-12">
+<div class="form-group">
+   <label for="example-text-input" id="lbl_header" class="col-6 col-form-label"><strong>Header</strong>  Authorization</label> 
+   <div class="col-10" hidden="">
+       <input class="form-control" type="text" value="Authorization" readonly="readonly" id="api_header">
+   </div>
+   <div class="col-12">
+       <pre style="border: none;">ตัวอย่างการส่ง Header : 
+        Authorization = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4
+fwpMeJf36POk6yJV_adQssw5c 
+</pre>
+   </div>
+
+
+</div>
+</div>
+
+
+
+
+                  </div>
+                  
+                  <div class="row">
+
+<div class="col-sm-12" id="exampleget" style="display: none;">
+<div class="form-group">
+   <label for="example-text-input" id="lbl_exampleget" class="col-6 col-form-label">https://api.ipthailand.go.th/DIP-APIDynamicFilter= ชื่อฟิวล์ ตัวดำเนินการ  ค่าที่ต้องการค้นหา</label>
+   <div class="col-10" hidden="">
+       <input class="form-control" type="text" value="" readonly="readonly" id="api_example">
+   </div>
+</div>
+</div>
+
+<div class="col-sm-12 hidden" id="exampleGET">
+<div class="form-group">
+   <label for="example-text-input" class="col-6 col-form-label"><strong>ตัวอย่าง Parameter การเรียกใช้งาน API</strong>  </label>
+   <div class="col-12">
+       <pre id="formexampleapi" style="border: none">{
+"user_name": "ชื่อผู้ใช้งาน"
+}</pre>
+       <div class="alert alert-danger" role="alert">
+           ส่งข้อมูล Parameter ใน Body ให้เป็นรูปแบบ Json
+       </div>
+   </div>
+</div>
+</div>
+<div class="col-sm-12" id="requestsetting" style="display: none;">
+ <div class="form-group">
+     <label for="example-text-input" class="col-6 col-form-label"><strong>ตัวอย่าง Request</strong>  </label>
+     <div class="col-12" id="Request" style="display: none;">
+
+     </div>
+ </div>
+</div>
+<div class="col-sm-12" id="responsesetting" style="display: none;">
+<div class="form-group">
+   <label for="example-text-input" class="col-6 col-form-label"><strong>ตัวอย่าง Response</strong>  </label>
+     <div class="col-12" id="Response" style="display: none;">
+
+     </div>
+ </div>
+</div>
+
+                  </div>
+
+
+              </div>
+              <hr>
+              <div class="container">
+                  <div class="row">
+<div class="col-lg-12 mx-auto">
+<h2></h2>
+
+</div>
+                  </div>
+                  <div class="row">
+<div class="col-12" style="padding: 0px 29px !important;">
+<table id="fielddata" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+   <thead>
+       <tr>
+          
+           
+          <th class="th-sm" style="width: 25%; text-align: center;">Field Name
+       </th>
+       <th class="th-sm" style="width: 30%; text-align: center;">Field Description
+       </th>
+       <th class="th-sm" style="width: 10%; text-align: center;">Field Type
+       </th> 
+       <th class="th-sm" style="width: 20%; text-align: center;">Field Unit
+       </th>
+       </tr>
+   </thead>
+   <tbody id="meta_body">
+     <tr><td style="text-align:center;">1</td><td>CITIZEN_ID</td><td>เลขบัตรประชาชน</td><td>varchar</td></tr>
+     <tr><td style="text-align:center;">2</td><td>PREFIX</td><td>คำนำหน้าชื่อ</td><td>varchar</td></tr>
+     <tr><td style="text-align:center;">3</td><td>NAME</td><td>ชื่อ</td><td>varchar</td></tr>
+     <tr><td style="text-align:center;">4</td><td>SURNAME</td><td>นามสกุล</td><td>varchar</td></tr>
+     <tr><td style="text-align:center;">5</td><td>BIRTHDATE</td><td>วันเกิด</td><td>varchar</td></tr>
+     <tr><td style="text-align:center;">6</td><td>HOUSE_ID</td><td>เลขที่บ้าน</td><td>varchar</td></tr>
+     <tr><td style="text-align:center;">7</td><td>PROVINCE</td><td>จังหวัด</td><td>varchar</td></tr>
+     <tr><td style="text-align:center;">8</td><td>AMPHUR</td><td>อำเภอ</td><td>varchar</td></tr>
+     <tr><td style="text-align:center;">9</td><td>TAMBON</td><td>ตำบล</td><td>varchar</td></tr>
+ </tbody>
+
+</table>
+</div>
+                  </div>
+
+              </div>
+          </div>
+          <div class="modal-footer-full-width  modal-footer">
+              <button type="button" class="btn btn-danger btn-md btn-rounded" data-dismiss="modal">ปิด</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+  <article class="module" role="main">
+    <div class="module-content">
+      
+      {% if h.check_access('organization_create') %}
+      <!-- <a href="/apigroup" class="btn btn-success" style="float: right;margin-bottom: 15px;">สร้าง API</a> -->
+      {% endif %}
+
+      <div class="form-group control-medium">
+        <label class="control-label" for="field-password">ข้อมูลที่ให้บริการแลกเปลียน Api </label>
+        <a type="button" href="/base/pdf/API.pdf" target="_blank" class="btn btn-primary" style="background: #013361;padding-top: 3px;height: 25px;" onclick="getdata('data_0')"> วิธีใช้งาน API</a>
+        <div class="controls ">
+          <table id="user_table" class="table table-bordered table-hover">
+            <thead>
+                <th>ชื่อชุดข้อมูล</th>
+                <th>คำอธิบาย</th>
+                <th>Url</th>
+                <th style="width: 75px;">Method</th>
+                <th style="width: 150px;">รายละเอียด</th>
+            </thead>
+            <tbody id="data_body">
+             
+          </tbody>
+          </table>
+      
+        
+        </div>
+        </div>
+
+        <div class="form-group control-medium">
+          <label class="control-label" for="field-password">ตัวอย่างการเรียกใช้งาน Api</label>
+        <img src="/base/images/postman1.png" style="    width: 100%;">
+        </div>
+       
+
+        
+    </div>
+  </article>
+
+  
+  <script>
+    $(function(){
+
+
+      
+
+      var settings = {
+  "url": "/data/api",
+  "method": "GET",
+  "timeout": 0,
+  "headers": {
+    "Authorization": "29069fa2-ac22-4647-a997-53de654c9766"
+  },
+};
+
+$.ajax(settings).done(function (response) {
+ 
+var html ="";
+
+for(var i=0;i<response.length;i++) {
+  if(String(response[i].method)!=="undefined"){
+  html+='<tr>'+
+    '       <td>'+response[i].title+'</td>'+
+    '       <td>'+response[i].description+'</td>'+
+    '           <td>'+response[i].url+'</td>'+
+    '           <td style="text-align: center;">GET</td>'+
+    '           <td style="text-align: center;"><button type="button" class="btn btn-primary" style="background: #013361" onclick="getdata(\'data_'+i+'\')" ><textarea id="data_'+i+'" value="" class="hidden">'+JSON.stringify(response[i])+'</textarea> รายละเอียด</button></td>'+
+    '         </tr>';
+  }
+}
+$("#data_body").html(html);
+
+$('#user_table').DataTable({
+      "columns": [
+          
+          null,
+          null,
+          null,
+          { "width": "50px" },
+          { "width": "100px" }
+      ],
+      "paging": true,
+      "lengthChange": false,
+      "searching": true,
+      "ordering": false,
+      "info": false,
+      "scrollX": true,
+      "autoWidth": false
+    });
+
+  $("#loader_box").fadeOut();
+
+
+});
+    });
+
+   
+    function getdata(id){
+      var d = $("#"+id).val();
+      var json = JSON.parse(d);
+
+
+      var settings = {
+  "url": "/data/api/"+json.id,
+  "method": "GET",
+  "timeout": 0,
+  "headers": {
+    "Authorization": "29069fa2-ac22-4647-a997-53de654c9766"
+  },
+};
+
+$.ajax(settings).done(function (response) {
+
+  $("#lblapi_name").html(json.title);
+  $("#lbl_url").html(json.url);
+  $("#lbl_method").html(json.method);
+
+  var metadata =response.metadata;
+      var des_field =response.des_field;
+      var data_type =response.data_type;
+      var unit_field =response.unit_field;
+
+     
+      var tb ="";
+      for(var i=0;i<metadata.length;i++){
+        tb += '<tr><td >'+metadata[i]+'</td><td>'+String(des_field[i]).replace("undefined","")+'</td><td>'+String(data_type[i]).replace("undefined","")+'</td><td>'+String(unit_field[i]).replace("undefined","")+'</td></tr>';
+      }
+      $("#meta_body").html(tb);
+      $("#exampleModalPreview").modal();
+
+});
+
+  }
+
+  </script>
+
+
+{% endblock %}
+
+{% block secondary %}{% endblock %}
